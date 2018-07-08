@@ -3,7 +3,7 @@ using UgoChain.Features;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace UgoChain.Tests
+namespace UgoChain.Tests.Blockchain.Tests
 {
     public class BlockTests
     {

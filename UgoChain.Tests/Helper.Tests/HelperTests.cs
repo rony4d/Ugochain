@@ -20,7 +20,7 @@ namespace UgoChain.Tests
         public void ConvertToUnixTimeStamp()
         {
             DateTime genesisTime = new DateTime(2018, 07, 8, 11, 2, 0, DateTimeKind.Local);
-            double genesisUnixTime = Helper.ConvertToUnixTimeStamp(genesisTime);
+            double genesisUnixTime =  Helper.ConvertToUnixTimeStamp(genesisTime);
             _testOutputHelper.WriteLine(genesisUnixTime.ToString());
         }
 
