@@ -35,7 +35,7 @@ namespace UgoChain.Features
         /// </summary>
         /// <param name="blockchain"></param>
         /// <returns></returns>
-        public bool isChainValid(Blockchain blockchain)
+        public bool IsChainValid(Blockchain blockchain)
         {
             if (!blockchain.Chain.FirstOrDefault().Equals(Block.GenesisBlock()))
                 return false;
@@ -50,6 +50,51 @@ namespace UgoChain.Features
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Replace the exisiting blockchain if:
+        /// 1. The new chain is longer than the existing blockchain
+        /// 2. The new chain is valid
+        /// </summary>
+        /// <param name="newBlockChain"></param>
+        /// <returns>Status and the message</returns>
+        public (bool,string) ReplaceChain(Blockchain newBlockChain)
+        {
+            if (Chain.Count >= newBlockChain.Chain.Count)
+            {
+                return (false, "Exising chain is longer than the new chain");
+            }
+            else if (!IsChainValid(newBlockChain))
+            {
+                return (false, "The new chain is not valid");
+            }
+            Chain = newBlockChain.Chain;
+            return (true, "New chain has replaced exisiting chain");
+        }
+
+        public override bool Equals(object obj)
+        {
+            Blockchain blockchain = obj as Blockchain;
+            if (blockchain == null)
+                return false;
+            if (Chain.Count != blockchain.Chain.Count)
+                return false;
+            if (blockchain.Chain == null)
+                return false;
+
+            for (int i = 0; i < blockchain.Chain.Count; i++)
+            {
+                if (!Chain[i].Equals(blockchain.Chain[i]))
+                    return false;
+            }
+
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 }
