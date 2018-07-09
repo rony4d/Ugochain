@@ -55,5 +55,28 @@ namespace UgoChain.Features
             string hash = Convert.ToBase64String(hashBytes);
             return hash;
         }
+
+        public static string BlockHash(Block block)
+        {
+            return GetHash(block.TimeStamp, block.LastHash, block.Data);
+        }
+        public override bool Equals(object obj)
+        {
+            var block = obj as Block;
+            if (block == null)
+            {
+                return false;
+            }
+            return (TimeStamp == block.TimeStamp
+                && LastHash == block.LastHash
+                && Hash == block.Hash
+                && Data == block.Data) ;
+        }
+
+        public override int GetHashCode()
+        {
+           //use default hash function for now
+            return base.GetHashCode();
+        }
     }
 }
