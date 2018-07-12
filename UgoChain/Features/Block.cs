@@ -41,7 +41,7 @@ namespace UgoChain.Features
 
         public static Block MineBlock(Block previousBlock,string data)
         {
-            string timeStamp = DateTime.Now.ToString();
+            string timeStamp = Helper.ConvertToUnixTimeStamp(DateTime.Now).ToString();
             string lastHash = previousBlock.Hash;
             string hash = GetHash(timeStamp,lastHash,data);
 
@@ -51,7 +51,7 @@ namespace UgoChain.Features
         public static string GetHash(string timeStamp,string lastHash,string data)
         {
             SHA256 sHA256 = SHA256.Create();
-            Byte [] hashBytes = sHA256.ComputeHash(Encoding.UTF8.GetBytes(timeStamp + lastHash + data));
+            Byte [] hashBytes = sHA256.ComputeHash(Encoding.Default.GetBytes(timeStamp + lastHash + data));
             string hash = Convert.ToBase64String(hashBytes);
             return hash;
         }

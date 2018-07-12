@@ -8,15 +8,21 @@ using UgoChain.Features;
 
 namespace UgoChainApp.Controllers
 {
-    [Produces("application/json")]
     [Route("api/block")]
     public class BlockController : Controller
     {
+        Blockchain blockchain { get; set; } = new Blockchain();
         [HttpGet("getblocks")]
         public IActionResult GetBlocks()
         {
-            Blockchain blockchain = new Blockchain();
 
+            return Ok(blockchain.Chain);
+        }
+
+        [HttpPost("mine")]
+        public IActionResult Mine(Block block)
+        {
+            blockchain.AddBlock(block.Data);
             return Ok(blockchain.Chain);
         }
     }
