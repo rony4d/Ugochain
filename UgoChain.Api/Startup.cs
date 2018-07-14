@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using UgoChain.Api.Hubs;
 
 namespace UgoChain.Api
 {
@@ -26,6 +27,9 @@ namespace UgoChain.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            //This tells the client to use message pack but server can also accept JSON from other clients 
+            services.AddSignalR().AddMessagePackProtocol();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -42,6 +46,10 @@ namespace UgoChain.Api
 
             app.UseHttpsRedirection();
             app.UseMvc();
+            app.UseSignalR(route =>
+            {
+                route.MapHub<PeersHub>("/peershub");
+            });
         }
     }
 }
