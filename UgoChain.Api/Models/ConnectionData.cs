@@ -10,5 +10,7 @@ namespace UgoChain.Api.Models
         public DateTime ConnectionTime { get; set; }
         public string ConnectionId { get; set; }
         public string Payload { get; set; }
+        public int PeerCode { get; set; }
+
     }
 }

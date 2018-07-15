@@ -22,4 +22,17 @@ namespace UgoChain
         
     }
 
+    public enum PeersEnum
+    {
+        Main = 1,
+        PeerOne = 2,
+        PeerTwo = 3
+    }
+
+    public enum PeerColorsEnum
+    {
+        Main = ConsoleColor.White,
+        PeerOne = ConsoleColor.Green,
+        PeerTwo = ConsoleColor.Yellow
+    }
 }

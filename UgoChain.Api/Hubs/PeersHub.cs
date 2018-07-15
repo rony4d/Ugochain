@@ -14,6 +14,7 @@ namespace UgoChain.Api.Hubs
             ConnectionData connectionData = new ConnectionData();
             connectionData.ConnectionId = Context.ConnectionId;
             connectionData.ConnectionTime = DateTime.Now;
+            connectionData.PeerCode = (int)PeersEnum.Main;
             var httpContext = Context.GetHttpContext();
             connectionData.Payload = $"Local Port: {httpContext.Connection.LocalPort} \n" +
                 $" Local IP Address: {httpContext.Connection.LocalIpAddress} \n" +
@@ -23,6 +24,7 @@ namespace UgoChain.Api.Hubs
 
             return Clients.All.SendAsync("ActiveConnections", ConnectionList.GetActiveConnections());
         }
+
 
         public override Task OnDisconnectedAsync(Exception exception)
         {

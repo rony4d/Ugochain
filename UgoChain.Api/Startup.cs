@@ -43,13 +43,13 @@ namespace UgoChain.Api
             {
                 app.UseHsts();
             }
-
             app.UseHttpsRedirection();
             app.UseMvc();
             app.UseSignalR(route =>
             {
                 route.MapHub<PeersHub>("/peershub");
             });
+
         }
     }
 }
