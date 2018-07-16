@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UgoChain.Api.PeerTwoClient.Models;
+using UgoChain.PeerTwo.Features;
 
 namespace UgoChain.Api.PeerTwoClient
 {
@@ -49,7 +52,17 @@ namespace UgoChain.Api.PeerTwoClient
 
                 }
             });
+            hubConnection.On<int, List<Block>>("ReceiveCurrentBlockchain", (peerCode, blockchain) =>
+            {
+                string blockchainStr = JsonConvert.SerializeObject(blockchain);
 
+                SetConsoleDefaults(peerCode);
+
+                Console.WriteLine($"Current Chain JSON {blockchainStr} \n" +
+                    $" Block Count: {blockchain.Count}\n " +
+                    $" Newest Block Data: {blockchain.LastOrDefault().Data} \n" +
+                    $" Newest Block Hash: {blockchain.LastOrDefault().Hash}");
+            });
             try
             {
                 await hubConnection.StartAsync();

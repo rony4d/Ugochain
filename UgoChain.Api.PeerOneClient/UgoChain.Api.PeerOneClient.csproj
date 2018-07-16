@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Ugochain.PeerOne.Features\Ugochain.PeerOne.Features.csproj" />
     <ProjectReference Include="..\UgoChain\UgoChain.csproj" />
   </ItemGroup>
 

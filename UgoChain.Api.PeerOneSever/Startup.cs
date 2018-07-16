@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using UgoChain.Api.PeerOneSever.Hubs;
+using UgoChain.PeerOne.Features;
 
 namespace UgoChain.Api.PeerOneSever
 {
@@ -34,6 +35,8 @@ namespace UgoChain.Api.PeerOneSever
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddSignalR().AddMessagePackProtocol();
+            services.AddSingleton<IBlockchain, Blockchain>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

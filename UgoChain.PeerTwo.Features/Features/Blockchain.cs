@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace UgoChain.Features
+namespace UgoChain.PeerTwo.Features
 {
     public class Blockchain:IBlockchain
     {

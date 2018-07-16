@@ -12,11 +12,13 @@ namespace UgoChain.Tests
     {
         private ITestOutputHelper _testOutputHelper;
 
-        private Features.Blockchain _blockchain { get; set; } = new Features.Blockchain();
-        private Features.Blockchain _blockchain2 { get; set; } = new Features.Blockchain();
+        private IBlockchain _blockchain { get; set; }
+        private IBlockchain _blockchain2 { get; set; } 
 
         public BlockchainTest(ITestOutputHelper testOutputHelper)
-        {
+        {   
+            _blockchain = new Features.Blockchain();
+            _blockchain2 = new Features.Blockchain();
             _testOutputHelper = testOutputHelper;
         }
         /// <summary>
@@ -36,8 +38,10 @@ namespace UgoChain.Tests
         public void ShouldAddNewBlock()
         {
             string data = "Test Data";
-            Block freshBlock =_blockchain.AddBlock(data);
+            Block freshBlock =(Block)_blockchain.AddBlock(data);
             Assert.Equal(_blockchain.Chain.LastOrDefault().Data, data);
+            Block anotherBlock = (Block)_blockchain.AddBlock("another one");            
+            Assert.Equal(3, _blockchain.Chain.Count);
 
         }
         /// <summary>

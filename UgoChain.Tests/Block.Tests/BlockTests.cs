@@ -8,9 +8,11 @@ namespace UgoChain.Tests.Blockchain.Tests
     public class BlockTests
     {
         private ITestOutputHelper _testOutputHelper;
-        private Block _geneis { get; set; } = Block.GenesisBlock();
+
+        private IBlock _geneis { get; set; }
         public BlockTests(ITestOutputHelper testOutputHelper)
         {
+            _geneis = new Block();
             _testOutputHelper = testOutputHelper;
         }
         [Fact]
@@ -24,8 +26,8 @@ namespace UgoChain.Tests.Blockchain.Tests
         [Fact]
         public void CreateGenesisBlock()
         {
-            Block genesis = Block.GenesisBlock();
-            Assert.NotNull(genesis);
+            IBlock genesis = Block.GenesisBlock();
+            Assert.NotNull((Block)genesis);
             Assert.Empty(genesis.Data);
             _testOutputHelper.WriteLine(genesis.ToString());
         }
@@ -34,8 +36,8 @@ namespace UgoChain.Tests.Blockchain.Tests
         public void MineBlock()
         {
             
-            Block newBlock = Block.MineBlock(_geneis, "New block mined");
-            Assert.NotNull(newBlock);
+            IBlock newBlock = Block.MineBlock(_geneis, "New block mined");
+            Assert.NotNull((Block)newBlock);
             Assert.Equal(newBlock.LastHash, _geneis.Hash);
 
             _testOutputHelper.WriteLine(newBlock.ToString());

@@ -25,8 +25,8 @@ namespace UgoChain.Api.Client
                                             .WithUrl("https://localhost:44378/PeersHub")
                                             .Build();
 
-            //ConfigureConnection(peerOneHubConnection).GetAwaiter().GetResult();
-            //ConfigureConnection(peerTwoHubConnection).GetAwaiter().GetResult();
+            ConfigureConnection(peerOneHubConnection).GetAwaiter().GetResult();
+            ConfigureConnection(peerTwoHubConnection).GetAwaiter().GetResult();
             ConfigureConnection(mainPeerConnection).GetAwaiter().GetResult();
             Console.ReadKey();
 

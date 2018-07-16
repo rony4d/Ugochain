@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace UgoChain.Features
+namespace UgoChain.PeerOne.Features
 {
     public class Block:IBlock
     {

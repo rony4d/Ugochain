@@ -1,28 +1,26 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
-using UgoChain.Api.Hubs;
-using UgoChain.Features;
+using UgoChain.Api.PeerTwoSever.Hubs;
+using UgoChain.PeerTwo.Features;
 
-namespace UgoChain.Api.Controllers
+namespace UgoChain.Api.PeerOneServer.Controllers
 {
     /// <summary>
-    /// Block Controller For Main Peer Server
+    /// Block Controller For Peer One Server
     /// </summary>
     [Produces("application/json")]
     [Route("api/[controller]")]
-      
     public class BlockController : Controller
     {
-        IHubContext<PeersHub> _peerHubContext;
+        IHubContext<PeerTwoHub> _peerTwoHubContext;
         IBlockchain _blockchain;
-        public BlockController(IHubContext<PeersHub> peerHubContext, IBlockchain blockchain)
+        public BlockController(IHubContext<PeerTwoHub> peerTwoHubContext, IBlockchain blockchain)
         {
-            _peerHubContext = peerHubContext;
+            _peerTwoHubContext = peerTwoHubContext;
             _blockchain = blockchain;
         }
 
@@ -36,8 +34,9 @@ namespace UgoChain.Api.Controllers
         public IActionResult Mine(Block block)
         {
             _blockchain.AddBlock(block.Data);
-            _peerHubContext.Clients.All.SendAsync("ReceiveCurrentBlockchain",(int)PeersEnum.Main, _blockchain.Chain);
+            _peerTwoHubContext.Clients.All.SendAsync("ReceiveCurrentBlockchain", (int)PeersEnum.PeerTwo, _blockchain.Chain);
             return Ok(_blockchain.Chain);
         }
     }
+
 }

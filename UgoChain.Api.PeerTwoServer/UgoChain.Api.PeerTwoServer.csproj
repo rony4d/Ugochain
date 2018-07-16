@@ -18,6 +18,7 @@
 
 
   <ItemGroup>
+    <ProjectReference Include="..\UgoChain.PeerTwo.Features\UgoChain.PeerTwo.Features.csproj" />
     <ProjectReference Include="..\UgoChain\UgoChain.csproj" />
   </ItemGroup>
 
