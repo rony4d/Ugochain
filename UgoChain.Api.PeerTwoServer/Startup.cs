@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using UgoChain.Api.PeerTwoSever.Hubs;
 
 namespace UgoChain.Api.PeerTwoServer
 {
@@ -32,6 +33,8 @@ namespace UgoChain.Api.PeerTwoServer
             });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            services.AddSignalR().AddMessagePackProtocol();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -53,6 +56,11 @@ namespace UgoChain.Api.PeerTwoServer
             app.UseCookiePolicy();
 
             app.UseMvc();
+
+            app.UseSignalR(route =>
+            {
+                route.MapHub<PeerTwoHub>("/peertwohub");
+            });
         }
     }
 }

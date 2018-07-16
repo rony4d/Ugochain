@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace UgoChain.Api.PeerOneServer.Models
+namespace UgoChain.Api.PeerTwoSever.Models
 {
     public static class ConnectionList
     {

@@ -11,16 +11,20 @@ namespace UgoChain.Api.PeerOneClient
         static void Main(string[] args)
         {
 
-            Console.Title = "Ugochain Main .NET Client";
+            Console.Title = "Ugochain Peer One Client";
             HubConnection peerOneHubConnection = new HubConnectionBuilder()
-                                            .WithUrl("https://localhost:44353/PeerOneHub")
-                                            .Build();
+                                                .WithUrl("https://localhost:44353/PeerOneHub")
+                                                .Build();
+            HubConnection peerTwoHubConnection = new HubConnectionBuilder()
+                                          .WithUrl("https://localhost:44344/PeerTwoHub")
+                                          .Build();
 
             HubConnection mainPeerConnection = new HubConnectionBuilder()
                                             .WithUrl("https://localhost:44378/PeersHub")
                                             .Build();
 
             ConfigureConnection(peerOneHubConnection).GetAwaiter().GetResult();
+            ConfigureConnection(peerTwoHubConnection).GetAwaiter().GetResult();
             ConfigureConnection(mainPeerConnection).GetAwaiter().GetResult();
 
             Console.ReadKey();

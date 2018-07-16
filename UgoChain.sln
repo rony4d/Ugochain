@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UgoChain.Api.Client", "UgoC
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Peers", "Peers", "{77E26E90-519C-4FAA-9496-63ED017D67B6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UgoChain.Api.PeerOneSever", "UgoChain.Api.PeerOneSever\UgoChain.Api.PeerOneSever.csproj", "{340B6242-7F39-4C78-A945-7F538CEBC5F4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UgoChain.Api.PeerOneServer", "UgoChain.Api.PeerOneSever\UgoChain.Api.PeerOneServer.csproj", "{340B6242-7F39-4C78-A945-7F538CEBC5F4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PeerOne", "PeerOne", "{F500B13F-1DB3-4351-8893-AC479EA0D2F1}"
 EndProject

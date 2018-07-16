@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
 
-namespace UgoChain.Api.PeerOneServer.Models
+namespace UgoChain.Api.PeerTwoClient.Models
 {
     public class ConnectionData
     {
@@ -11,6 +10,7 @@ namespace UgoChain.Api.PeerOneServer.Models
         public string ConnectionId { get; set; }
         public string Payload { get; set; }
         public int PeerCode { get; set; }
-
     }
+
+
 }

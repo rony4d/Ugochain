@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UgoChain.Api.Client.Models;
+using UgoChain.Features;
 
 namespace UgoChain.Api.Client
 {
@@ -11,16 +14,21 @@ namespace UgoChain.Api.Client
         static void Main(string[] args)
         {
             Console.Title = "Ugochain Main .NET Client";
-            HubConnection _hubConnection = new HubConnectionBuilder()
-                                            .WithUrl("https://localhost:44384/ChatHub")                                          
-                                            .Build();
-            HubConnection peersHubConnection = new HubConnectionBuilder()
+            HubConnection peerOneHubConnection = new HubConnectionBuilder()
+                                           .WithUrl("https://localhost:44353/PeerOneHub")
+                                           .Build();
+            HubConnection peerTwoHubConnection = new HubConnectionBuilder()
+                                          .WithUrl("https://localhost:44344/PeerTwoHub")
+                                          .Build();
+
+            HubConnection mainPeerConnection = new HubConnectionBuilder()
                                             .WithUrl("https://localhost:44378/PeersHub")
                                             .Build();
 
-            ConfigureConnection(_hubConnection).GetAwaiter().GetResult();
-            ConfigureConnection(peersHubConnection).GetAwaiter().GetResult();
-            int action = int.Parse(Console.ReadLine());
+            //ConfigureConnection(peerOneHubConnection).GetAwaiter().GetResult();
+            //ConfigureConnection(peerTwoHubConnection).GetAwaiter().GetResult();
+            ConfigureConnection(mainPeerConnection).GetAwaiter().GetResult();
+            Console.ReadKey();
 
         }
 
@@ -43,7 +51,18 @@ namespace UgoChain.Api.Client
 
                 }
             });
+            hubConnection.On<int,List<Block>>("ReceiveCurrentBlockchain", (peerCode,blockchain) =>
+            {
+                    string blockchainStr = JsonConvert.SerializeObject(blockchain);
 
+                    SetConsoleDefaults(peerCode);
+
+                    Console.WriteLine($"Current Chain JSON {blockchainStr} \n" +
+                        $" Block Count: {blockchain.Count}\n " +
+                        $" Newest Block Data: {blockchain.LastOrDefault().Data} \n" +
+                        $" Newest Block Hash: {blockchain.LastOrDefault().Hash}");                
+            });
+            
             try
             {
                 await hubConnection.StartAsync();
