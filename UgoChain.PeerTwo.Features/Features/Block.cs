@@ -5,11 +5,11 @@ using System.Text;
 
 namespace UgoChain.PeerTwo.Features
 {
-    public class Block:IBlock
+    public class Block : IBlock
     {
         private const double GenesisTime = 1531044120; //unix time
 
-        public string TimeStamp { get ; set; }
+        public string TimeStamp { get; set; }
         public string LastHash { get; set; }
         public string Hash { get; set; }
         public string Data { get; set; }
@@ -19,7 +19,7 @@ namespace UgoChain.PeerTwo.Features
 
         }
 
-        public Block(string timeStamp,string lastHash,string hash,string data)
+        public Block(string timeStamp, string lastHash, string hash, string data)
         {
             TimeStamp = timeStamp;
             LastHash = lastHash;
@@ -36,29 +36,29 @@ namespace UgoChain.PeerTwo.Features
                 $"Data: {Data} \n";
         }
 
-        public static IBlock GenesisBlock()
+        public static Block GenesisBlock()
         {
-            return new Block(GenesisTime.ToString(),"xxxxxx","gen0SHA-94-01-25","");
+            return new Block(GenesisTime.ToString(), "xxxxxx", "gen0SHA-94-01-25", "");
         }
 
-        public static IBlock MineBlock(IBlock previousBlock,string data)
+        public static Block MineBlock(Block previousBlock, string data)
         {
             string timeStamp = Helper.ConvertToUnixTimeStamp(DateTime.Now).ToString();
             string lastHash = previousBlock.Hash;
-            string hash = GetHash(timeStamp,lastHash,data);
+            string hash = GetHash(timeStamp, lastHash, data);
 
             return new Block(timeStamp, lastHash, hash, data);
         }
-        
-        public static string GetHash(string timeStamp,string lastHash,string data)
+
+        public static string GetHash(string timeStamp, string lastHash, string data)
         {
             SHA256 sHA256 = SHA256.Create();
-            Byte [] hashBytes = sHA256.ComputeHash(Encoding.Default.GetBytes(timeStamp + lastHash + data));
+            Byte[] hashBytes = sHA256.ComputeHash(Encoding.Default.GetBytes(timeStamp + lastHash + data));
             string hash = Convert.ToBase64String(hashBytes);
             return hash;
         }
 
-        public static string BlockHash(IBlock block)
+        public static string BlockHash(Block block)
         {
             return GetHash(block.TimeStamp, block.LastHash, block.Data);
         }
@@ -72,12 +72,12 @@ namespace UgoChain.PeerTwo.Features
             return (TimeStamp == block.TimeStamp
                 && LastHash == block.LastHash
                 && Hash == block.Hash
-                && Data == block.Data) ;
+                && Data == block.Data);
         }
 
         public override int GetHashCode()
         {
-           //use default hash function for now
+            //use default hash function for now
             return base.GetHashCode();
         }
     }

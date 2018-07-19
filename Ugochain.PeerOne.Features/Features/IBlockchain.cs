@@ -6,12 +6,12 @@ namespace UgoChain.PeerOne.Features
 {
     public interface IBlockchain
     {
-        List<IBlock> Chain { get; set; }
+        List<Block> Chain { get; set; }
 
-        IBlock AddBlock(string data);
+        Block AddBlock(string data);
 
-        bool IsChainValid(IBlockchain blockchain);
+        bool IsChainValid(Blockchain blockchain);
 
-        (bool, string) ReplaceChain(IBlockchain blockchain);
+        (bool, string) ReplaceChain(Blockchain blockchain);
     }
 }

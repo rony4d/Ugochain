@@ -11,8 +11,11 @@ namespace UgoChain.Api.Client
 {
     class Program
     {
+        public static List<HubConnection> hubConnections;
+
         static void Main(string[] args)
         {
+            hubConnections = new List<HubConnection>();
             Console.Title = "Ugochain Main .NET Client";
             HubConnection peerOneHubConnection = new HubConnectionBuilder()
                                            .WithUrl("https://localhost:44353/PeerOneHub")
@@ -26,14 +29,20 @@ namespace UgoChain.Api.Client
                                             .Build();
 
             ConfigureConnection(peerOneHubConnection).GetAwaiter().GetResult();
-            ConfigureConnection(peerTwoHubConnection).GetAwaiter().GetResult();
+            //ConfigureConnection(peerTwoHubConnection).GetAwaiter().GetResult();
             ConfigureConnection(mainPeerConnection).GetAwaiter().GetResult();
-            Console.ReadKey();
 
+            hubConnections.Add(peerOneHubConnection);
+            //hubConnections.Add(peerTwoHubConnection);
+            hubConnections.Add(mainPeerConnection);
+
+
+            Console.ReadKey();
         }
 
         public static async Task ConfigureConnection(HubConnection hubConnection)
         {
+
             hubConnection.On<int, string, string, string>("ReceiveMessage", (peerCode, timestamp, user, message) =>
             {
                 SetConsoleDefaults(peerCode);
@@ -51,6 +60,16 @@ namespace UgoChain.Api.Client
 
                 }
             });
+
+            //Announce fresh block when a block is mined from any peer
+            hubConnection.On<int, string>("AnnouncFreshBlock", (peerCode, announcement) =>
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+
+                Console.WriteLine(announcement);
+            });
+
+            // when you receive the current blockchain, update the peers with it
             hubConnection.On<int,List<Block>>("ReceiveCurrentBlockchain", (peerCode,blockchain) =>
             {
                     string blockchainStr = JsonConvert.SerializeObject(blockchain);
@@ -60,7 +79,10 @@ namespace UgoChain.Api.Client
                     Console.WriteLine($"Current Chain JSON {blockchainStr} \n" +
                         $" Block Count: {blockchain.Count}\n " +
                         $" Newest Block Data: {blockchain.LastOrDefault().Data} \n" +
-                        $" Newest Block Hash: {blockchain.LastOrDefault().Hash}");                
+                        $" Newest Block Hash: {blockchain.LastOrDefault().Hash}");
+
+                hubConnections.ForEach(hubconnection => hubConnection.InvokeAsync("SyncChain", blockchain));
+
             });
             
             try
@@ -74,6 +96,7 @@ namespace UgoChain.Api.Client
             }
 
         }
+
 
         private static void SetConsoleDefaults(int peerCode)
         {

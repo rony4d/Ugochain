@@ -37,7 +37,11 @@ namespace UgoChain.Api.Controllers
         {
             _blockchain.AddBlock(block.Data);
             _peerHubContext.Clients.All.SendAsync("ReceiveCurrentBlockchain",(int)PeersEnum.Main, _blockchain.Chain);
+            //hubConnection.InvokeAsync("SyncChain", blockchain);
+
             return Ok(_blockchain.Chain);
         }
+
+   
     }
 }

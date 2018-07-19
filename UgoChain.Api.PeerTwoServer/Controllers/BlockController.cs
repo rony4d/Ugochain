@@ -37,6 +37,8 @@ namespace UgoChain.Api.PeerOneServer.Controllers
             _peerTwoHubContext.Clients.All.SendAsync("ReceiveCurrentBlockchain", (int)PeersEnum.PeerTwo, _blockchain.Chain);
             return Ok(_blockchain.Chain);
         }
+
+  
     }
 
 }

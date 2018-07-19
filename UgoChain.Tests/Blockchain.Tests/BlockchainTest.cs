@@ -12,8 +12,8 @@ namespace UgoChain.Tests
     {
         private ITestOutputHelper _testOutputHelper;
 
-        private IBlockchain _blockchain { get; set; }
-        private IBlockchain _blockchain2 { get; set; } 
+        private Features.Blockchain _blockchain { get; set; }
+        private Features.Blockchain _blockchain2 { get; set; } 
 
         public BlockchainTest(ITestOutputHelper testOutputHelper)
         {   

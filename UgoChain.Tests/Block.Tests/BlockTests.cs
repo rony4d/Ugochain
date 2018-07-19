@@ -9,7 +9,7 @@ namespace UgoChain.Tests.Blockchain.Tests
     {
         private ITestOutputHelper _testOutputHelper;
 
-        private IBlock _geneis { get; set; }
+        private Block _geneis { get; set; }
         public BlockTests(ITestOutputHelper testOutputHelper)
         {
             _geneis = new Block();
@@ -26,7 +26,7 @@ namespace UgoChain.Tests.Blockchain.Tests
         [Fact]
         public void CreateGenesisBlock()
         {
-            IBlock genesis = Block.GenesisBlock();
+            Block genesis = Block.GenesisBlock();
             Assert.NotNull((Block)genesis);
             Assert.Empty(genesis.Data);
             _testOutputHelper.WriteLine(genesis.ToString());
@@ -36,7 +36,7 @@ namespace UgoChain.Tests.Blockchain.Tests
         public void MineBlock()
         {
             
-            IBlock newBlock = Block.MineBlock(_geneis, "New block mined");
+            Block newBlock = Block.MineBlock(_geneis, "New block mined");
             Assert.NotNull((Block)newBlock);
             Assert.Equal(newBlock.LastHash, _geneis.Hash);
 

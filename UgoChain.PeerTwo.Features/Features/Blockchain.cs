@@ -5,13 +5,13 @@ using System.Text;
 
 namespace UgoChain.PeerTwo.Features
 {
-    public class Blockchain:IBlockchain
+    public class Blockchain : IBlockchain
     {
-        public List<IBlock> Chain { get; set; } 
+        public List<Block> Chain { get; set; }
 
         public Blockchain()
-        {           
-            Chain = new List<IBlock>();
+        {
+            Chain = new List<Block>();
             Chain.Add(Block.GenesisBlock());
         }
 
@@ -21,9 +21,9 @@ namespace UgoChain.PeerTwo.Features
         /// </summary>
         /// <param name="data"></param>
         /// <returns>Mined block</returns>
-        public IBlock AddBlock(string data)
+        public Block AddBlock(string data)
         {
-            IBlock freshBlock = Block.MineBlock(Chain.LastOrDefault(), data);
+            Block freshBlock = Block.MineBlock(Chain.LastOrDefault(), data);
             Chain.Add(freshBlock);
             return freshBlock;
         }
@@ -36,18 +36,18 @@ namespace UgoChain.PeerTwo.Features
         /// </summary>
         /// <param name="blockchain"></param>
         /// <returns></returns>
-        public bool IsChainValid(IBlockchain blockchain)
+        public bool IsChainValid(Blockchain blockchain)
         {
             if (!blockchain.Chain.FirstOrDefault().Equals(Block.GenesisBlock()))
                 return false;
 
             for (int i = 1; i < blockchain.Chain.Count; i++)
             {
-                IBlock currentBlock = blockchain.Chain[i];
-                IBlock lastBlock = blockchain.Chain[i - 1];
+                Block currentBlock = blockchain.Chain[i];
+                Block lastBlock = blockchain.Chain[i - 1];
                 if (currentBlock.LastHash != lastBlock.Hash || currentBlock.Hash != Block.BlockHash(currentBlock))
                     return false;
-                
+
             }
 
             return true;
@@ -60,11 +60,16 @@ namespace UgoChain.PeerTwo.Features
         /// </summary>
         /// <param name="newBlockChain"></param>
         /// <returns>Status and the message</returns>
-        public (bool,string) ReplaceChain(IBlockchain newBlockChain)
+        public (bool, string) ReplaceChain(Blockchain newBlockChain)
         {
-            if (Chain.Count >= newBlockChain.Chain.Count)
+            if (Chain.Count > newBlockChain.Chain.Count)
             {
                 return (false, "Exising chain is longer than the new chain");
+            }
+            else if (Chain.Count == newBlockChain.Chain.Count)
+            {
+                return (false, "Exising chain is equal to the new chain");
+
             }
             else if (!IsChainValid(newBlockChain))
             {

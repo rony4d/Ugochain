@@ -36,12 +36,12 @@ namespace UgoChain.Features
                 $"Data: {Data} \n";
         }
 
-        public static IBlock GenesisBlock()
+        public static Block GenesisBlock()
         {
             return new Block(GenesisTime.ToString(),"xxxxxx","gen0SHA-94-01-25","");
         }
 
-        public static IBlock MineBlock(IBlock previousBlock,string data)
+        public static Block MineBlock(Block previousBlock,string data)
         {
             string timeStamp = Helper.ConvertToUnixTimeStamp(DateTime.Now).ToString();
             string lastHash = previousBlock.Hash;
@@ -58,7 +58,7 @@ namespace UgoChain.Features
             return hash;
         }
 
-        public static string BlockHash(IBlock block)
+        public static string BlockHash(Block block)
         {
             return GetHash(block.TimeStamp, block.LastHash, block.Data);
         }

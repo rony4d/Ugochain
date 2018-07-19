@@ -11,13 +11,15 @@ namespace UgoChain.Api.PeerOneClient
 {
     class Program
     {
+        public static List<HubConnection> hubConnections;
+
         static void Main(string[] args)
         {
-
-            Console.Title = "Ugochain Peer One Client";
+            hubConnections = new List<HubConnection>();
+            Console.Title = "Ugochain Peer One Server";
             HubConnection peerOneHubConnection = new HubConnectionBuilder()
-                                                .WithUrl("https://localhost:44353/PeerOneHub")
-                                                .Build();
+                                           .WithUrl("https://localhost:44353/PeerOneHub")
+                                           .Build();
             HubConnection peerTwoHubConnection = new HubConnectionBuilder()
                                           .WithUrl("https://localhost:44344/PeerTwoHub")
                                           .Build();
@@ -27,15 +29,21 @@ namespace UgoChain.Api.PeerOneClient
                                             .Build();
 
             ConfigureConnection(peerOneHubConnection).GetAwaiter().GetResult();
-            ConfigureConnection(peerTwoHubConnection).GetAwaiter().GetResult();
+            //ConfigureConnection(peerTwoHubConnection).GetAwaiter().GetResult();
             ConfigureConnection(mainPeerConnection).GetAwaiter().GetResult();
+
+            hubConnections.Add(peerOneHubConnection);
+            //hubConnections.Add(peerTwoHubConnection);
+            hubConnections.Add(mainPeerConnection);
 
             Console.ReadKey();
         }
 
         public static async Task ConfigureConnection(HubConnection hubConnection)
         {
-            hubConnection.On<int,string, string, string>("ReceiveMessage", (peerCode,timestamp, user, message) =>
+
+
+            hubConnection.On<int, string, string, string>("ReceiveMessage", (peerCode, timestamp, user, message) =>
             {
                 SetConsoleDefaults(peerCode);
 
@@ -53,6 +61,24 @@ namespace UgoChain.Api.PeerOneClient
                 }
             });
 
+            
+           //Announce fresh block when a block is mined from any peer
+            hubConnection.On<int, string>("AnnouncFreshBlock", (peerCode, announcement) =>
+             {
+                 Console.ForegroundColor = ConsoleColor.Red;
+
+                 Console.WriteLine(announcement);
+             });
+            //Announce sync when you receive this message
+            //hubConnection.On<int,string>("AnnouncePeerSync", (peerCode,announcement) =>
+            //{
+            //    Console.ForegroundColor = ConsoleColor.Red;
+
+            //    Console.WriteLine(announcement);
+            //});
+
+
+            // when you receive the current blockchain, update the peers with it
             hubConnection.On<int, List<Block>>("ReceiveCurrentBlockchain", (peerCode, blockchain) =>
             {
                 string blockchainStr = JsonConvert.SerializeObject(blockchain);
@@ -63,7 +89,11 @@ namespace UgoChain.Api.PeerOneClient
                     $" Block Count: {blockchain.Count}\n " +
                     $" Newest Block Data: {blockchain.LastOrDefault().Data} \n" +
                     $" Newest Block Hash: {blockchain.LastOrDefault().Hash}");
+
+                hubConnections.ForEach(hubconnection => hubConnection.InvokeAsync("SyncChain", blockchain));
+
             });
+
             try
             {
                 await hubConnection.StartAsync();
@@ -75,6 +105,7 @@ namespace UgoChain.Api.PeerOneClient
             }
 
         }
+
 
         private static void SetConsoleDefaults(int peerCode)
         {
