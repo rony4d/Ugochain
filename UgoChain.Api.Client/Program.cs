@@ -29,11 +29,11 @@ namespace UgoChain.Api.Client
                                             .Build();
 
             ConfigureConnection(peerOneHubConnection).GetAwaiter().GetResult();
-            //ConfigureConnection(peerTwoHubConnection).GetAwaiter().GetResult();
+            ConfigureConnection(peerTwoHubConnection).GetAwaiter().GetResult();
             ConfigureConnection(mainPeerConnection).GetAwaiter().GetResult();
 
             hubConnections.Add(peerOneHubConnection);
-            //hubConnections.Add(peerTwoHubConnection);
+            hubConnections.Add(peerTwoHubConnection);
             hubConnections.Add(mainPeerConnection);
 
 
@@ -62,7 +62,7 @@ namespace UgoChain.Api.Client
             });
 
             //Announce fresh block when a block is mined from any peer
-            hubConnection.On<int, string>("AnnouncFreshBlock", (peerCode, announcement) =>
+            hubConnection.On<int, string>("AnnounceFreshBlock", (peerCode, announcement) =>
             {
                 Console.ForegroundColor = ConsoleColor.Red;
 
@@ -70,7 +70,7 @@ namespace UgoChain.Api.Client
             });
 
             // when you receive the current blockchain, update the peers with it
-            hubConnection.On<int,List<Block>>("ReceiveCurrentBlockchain", (peerCode,blockchain) =>
+            hubConnection.On<int,List<Block>>("ReceiveCurrentBlockchain",(peerCode,blockchain) =>
             {
                     string blockchainStr = JsonConvert.SerializeObject(blockchain);
 
@@ -80,8 +80,11 @@ namespace UgoChain.Api.Client
                         $" Block Count: {blockchain.Count}\n " +
                         $" Newest Block Data: {blockchain.LastOrDefault().Data} \n" +
                         $" Newest Block Hash: {blockchain.LastOrDefault().Hash}");
-
-                hubConnections.ForEach(hubconnection => hubConnection.InvokeAsync("SyncChain", blockchain));
+                for (int i = 0; i < hubConnections.Count; i++)
+                {
+                    hubConnections[i].InvokeAsync("SyncChain", blockchain);
+                }
+                //hubConnections.ForEachAsync(hubconnection => hubConnection.InvokeAsync("SyncChain", blockchain));
 
             });
             

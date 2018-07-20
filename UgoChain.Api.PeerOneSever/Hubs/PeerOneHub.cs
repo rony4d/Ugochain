@@ -58,12 +58,12 @@ namespace UgoChain.Api.PeerOneSever.Hubs
 
             if (response.Item1)
             {
-                Clients.All.SendAsync("AnnouncFreshBlock", (int)PeerColorsEnum.PeerOne, $"Peer one - {response.Item2}");
+                Clients.All.SendAsync("AnnounceFreshBlock", (int)PeerColorsEnum.PeerOne, $"Peer one - {response.Item2}");
 
             }
             else
             {
-                Clients.All.SendAsync("AnnouncFreshBlock", (int)PeerColorsEnum.PeerOne, $"Peer one - {response.Item2}");
+                Clients.All.SendAsync("AnnounceFreshBlock", (int)PeerColorsEnum.PeerOne, $"Peer one - {response.Item2}");
 
             }
 

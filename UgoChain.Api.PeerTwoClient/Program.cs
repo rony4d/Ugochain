@@ -29,11 +29,11 @@ namespace UgoChain.Api.PeerTwoClient
                                             .Build();
 
             ConfigureConnection(peerOneHubConnection).GetAwaiter().GetResult();
-            //ConfigureConnection(peerTwoHubConnection).GetAwaiter().GetResult();
+            ConfigureConnection(peerTwoHubConnection).GetAwaiter().GetResult();
             ConfigureConnection(mainPeerConnection).GetAwaiter().GetResult();
 
             hubConnections.Add(peerOneHubConnection);
-            //hubConnections.Add(peerTwoHubConnection);
+            hubConnections.Add(peerTwoHubConnection);
             hubConnections.Add(mainPeerConnection);
 
 
@@ -63,7 +63,7 @@ namespace UgoChain.Api.PeerTwoClient
             });
 
             //Announce fresh block when a block is mined from any peer
-            hubConnection.On<int, string>("AnnouncFreshBlock", (peerCode, announcement) =>
+            hubConnection.On<int, string>("AnnounceFreshBlock", (peerCode, announcement) =>
             {
                 Console.ForegroundColor = ConsoleColor.Red;
 
@@ -89,7 +89,11 @@ namespace UgoChain.Api.PeerTwoClient
                     $" Newest Block Data: {blockchain.LastOrDefault().Data} \n" +
                     $" Newest Block Hash: {blockchain.LastOrDefault().Hash}");
 
-                hubConnections.ForEach(hubconnection => hubConnection.InvokeAsync("SyncChain", blockchain));
+                for (int i = 0; i < hubConnections.Count; i++)
+                {
+                    hubConnections[i].InvokeAsync("SyncChain", blockchain);
+                }
+                //hubConnections.ForEach(hubconnection => hubConnection.InvokeAsync("SyncChain", blockchain));
 
             });
 
