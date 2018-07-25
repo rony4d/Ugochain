@@ -5,6 +5,7 @@ using Xunit;
 using UgoChain.Features;
 using System.Linq;
 using Xunit.Abstractions;
+using Newtonsoft.Json;
 
 namespace UgoChain.Tests
 {
@@ -107,6 +108,23 @@ namespace UgoChain.Tests
             Assert.False(_blockchain.Equals(_blockchain2));
             _testOutputHelper.WriteLine(replaceResponse.Item2);
 
+        }
+
+        /// <summary>
+        /// Should test the dynamic difficulty adjustment for mining multiple blocks
+        /// </summary>
+        [Fact]
+        public void ShouldTestDynamicDifficultyAdjustmentForMultipleBlocks()
+        {
+
+            for (int i = 0; i < 10; i++)
+            {
+                _blockchain.AddBlock($"block {i} data");
+             
+            }
+
+            string output = JsonConvert.SerializeObject(_blockchain.Chain);
+            _testOutputHelper.WriteLine(output);
         }
     }
 }

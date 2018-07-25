@@ -30,5 +30,14 @@ namespace UgoChain.Tests
             DateTime genesisLocalTime = Helper.ConvertLocalTime(1531044120);
             _testOutputHelper.WriteLine(genesisLocalTime.ToString());
         }
+
+        [Fact]
+        public void ShouldPadZerosBasedOnDifficulty()
+        {
+            int Difficulty = 4;
+            string paddedValue = "0".PadRight(Difficulty, '0');
+            Assert.Equal("0000", paddedValue);
+            _testOutputHelper.WriteLine(paddedValue);
+        }
     }
 }
