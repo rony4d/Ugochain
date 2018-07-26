@@ -23,6 +23,11 @@ namespace UgoChain.Features.Wallet
                 $"Balance: {Balance} \n";
         }
 
+        public byte[] SignHash(byte [] Hash)
+        {
+            byte[] signature = ChainUtility.SignDataHash(Hash, KeyPair.PrivateKey);
+            return signature;
+        }
 
     }
 }

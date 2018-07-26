@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -38,7 +39,29 @@ namespace UgoChain.Features.Wallet
             };
             TxOutputs.Add(senderChangeBack);
             TxOutputs.Add(recipientOutput);
+
+            SignTransaction(this, senderWallet);
             return (true, "Transaction Created Successfully");
+        }
+
+        /// <summary>
+        /// Signs a transaction to be sent 
+        /// 1. Build a transaction input
+        /// 2. Generate the hash of the TxOutputs for the transaction
+        /// 3. Sign the hash generated with the wallet's private key
+        /// </summary>
+        /// <param name="transaction"></param>
+        /// <param name="senderWallet"></param>
+        /// <returns></returns>
+        public void SignTransaction(Transaction transaction, Wallet senderWallet)
+        {
+            TxInput txInput = new TxInput();
+            byte[] hash = ChainUtility.Hash(JsonConvert.SerializeObject(transaction.TxOutputs));
+            txInput.TimeStamp = Helper.ConvertToUnixTimeStamp(DateTime.Now).ToString();
+            txInput.Address = senderWallet.PublicKey.Key;
+            txInput.Amount = senderWallet.Balance;
+            txInput.Signature = senderWallet.SignHash(hash);
+            transaction.Input = txInput;
         }
     }
 }

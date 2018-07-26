@@ -83,9 +83,8 @@ namespace UgoChain.Features
 
         public static string GetHash(string timeStamp,string lastHash,string data, long nonce, long difficulty)
         {
-            SHA256 sHA256 = SHA256.Create();
-            Byte [] hashBytes = sHA256.ComputeHash(Encoding.Default.GetBytes(timeStamp + lastHash + data+ nonce+difficulty));
-            string hash = Convert.ToBase64String(hashBytes);
+            string dataToHash = timeStamp + lastHash + data + nonce + difficulty;
+            string hash = Convert.ToBase64String(ChainUtility.Hash(dataToHash));
             return hash;
         }
 

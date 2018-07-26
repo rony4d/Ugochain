@@ -6,8 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="BouncyCastle" Version="1.8.2" />
     <PackageReference Include="NBitcoin" Version="4.1.1.32" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Rebex.Elliptic.Castle" Version="0.9.3" />
   </ItemGroup>
 
 </Project>

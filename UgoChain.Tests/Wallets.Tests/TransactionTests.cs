@@ -65,5 +65,16 @@ namespace UgoChain.Tests.Wallets.Tests
             Assert.True(response.Item1 == false, response.Item2);
             //_testOutputHelper.WriteLine(response.Item2);
         }
+
+        /// <summary>
+        /// Check the TxInput exists and that the value of the amount is equal to the balance
+        /// </summary>
+        [Fact]
+        public void ShouldCheckTxInputExisitsAndHasCorrectAmount()
+        {
+            (bool, string) txResponse = _transaction.CreateTransaction(_wallet, recipientAddress, amountToSend);
+
+            Assert.Equal(_transaction.Input.Amount, _wallet.Balance);
+        }
     }
 }
