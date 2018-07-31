@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace UgoChain.Features.Wallet
@@ -40,7 +41,7 @@ namespace UgoChain.Features.Wallet
             TxOutputs.Add(senderChangeBack);
             TxOutputs.Add(recipientOutput);
 
-            SignTransaction(this, senderWallet);
+            SignTransaction(senderWallet);
             return (true, "Transaction Created Successfully");
         }
 
@@ -53,15 +54,56 @@ namespace UgoChain.Features.Wallet
         /// <param name="transaction"></param>
         /// <param name="senderWallet"></param>
         /// <returns></returns>
-        public void SignTransaction(Transaction transaction, Wallet senderWallet)
+        public void SignTransaction(Wallet senderWallet)
         {
             TxInput txInput = new TxInput();
-            byte[] hash = ChainUtility.Hash(JsonConvert.SerializeObject(transaction.TxOutputs));
+            byte[] hash = ChainUtility.Hash(JsonConvert.SerializeObject(TxOutputs));
             txInput.TimeStamp = Helper.ConvertToUnixTimeStamp(DateTime.Now).ToString();
             txInput.Address = senderWallet.PublicKey.Key;
             txInput.Amount = senderWallet.Balance;
             txInput.Signature = senderWallet.SignHash(hash);
-            transaction.Input = txInput;
+            Input = txInput;
+        }
+
+        /// <summary>
+        /// Veify signature using TxInput data-Note the TxInput is build from the wallet object
+        /// </summary>
+        /// <returns></returns>
+        public bool VerifyTransaction()
+        {
+            byte[] publicKey = Convert.FromBase64String(Input.Address);
+            byte[] dataHashToVerify = ChainUtility.Hash(JsonConvert.SerializeObject(TxOutputs));
+            return ChainUtility.VerifySignature(publicKey, Input.Signature, dataHashToVerify);
+        }
+
+        /// <summary>
+        /// Update current transaction by adding a new transaction output and modifying 
+        /// the senders changeback output
+        /// </summary>
+        /// <param name="senderWallet"></param>
+        /// <param name="recipientAddress"></param>
+        /// <param name="amountToSend"></param>
+        public (bool, string) UpdateTransaction(Wallet senderWallet, string recipientAddress, decimal amountToSend)
+        {
+            //get the current senders change back address and modify the amount to get back
+
+            TxOutput changeBack = TxOutputs.Where(p => p.Address == senderWallet.PublicKey.Key).FirstOrDefault();
+
+            if (amountToSend > changeBack.Amount)
+            {
+                return (false, $"Amount {amountToSend} exceeds balance");
+
+            }
+            TxOutputs.Where(p => p.Address == senderWallet.PublicKey.Key).FirstOrDefault().Amount = changeBack.Amount - amountToSend;
+            TxOutput newRecipientOutput = new TxOutput()
+            {
+                Address = recipientAddress,
+                Amount = amountToSend
+            };
+            TxOutputs.Add(newRecipientOutput);
+            SignTransaction(senderWallet);
+            return (true, "Transaction Updated Successfully");
+
         }
     }
 }

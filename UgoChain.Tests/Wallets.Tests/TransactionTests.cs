@@ -14,6 +14,8 @@ namespace UgoChain.Tests.Wallets.Tests
         Transaction _transaction;
         Wallet _wallet;
         string recipientAddress = "r3c1p13entPu8liCK3y";
+        string nextRecipient = "n3x7 a44r355";
+        decimal nextAmount = 40;
         decimal amountToSend = 50;
 
         public TransactionTests(ITestOutputHelper testOutputHelper)
@@ -75,6 +77,71 @@ namespace UgoChain.Tests.Wallets.Tests
             (bool, string) txResponse = _transaction.CreateTransaction(_wallet, recipientAddress, amountToSend);
 
             Assert.Equal(_transaction.Input.Amount, _wallet.Balance);
+        }
+
+        /// <summary>
+        /// Should verify valid transaction
+        /// </summary>
+        [Fact]
+        public void ShouldVerifyTransaction()
+        {
+            (bool, string) txResponse = _transaction.CreateTransaction(_wallet, recipientAddress, amountToSend);
+            bool isVerified = _transaction.VerifyTransaction();
+
+            Assert.True(isVerified);
+        }
+
+        /// <summary>
+        /// Should invalidate corrupt transaction
+        /// </summary>
+        [Fact]
+        public void ShouldInvalidatCorruptTransaction()
+        {
+            (bool, string) txResponse = _transaction.CreateTransaction(_wallet, recipientAddress, amountToSend);
+            _transaction.TxOutputs[0].Amount = 890000; // corrupting transaction by changing data
+            bool isVerified = _transaction.VerifyTransaction();
+
+            Assert.False(isVerified);
+        }
+
+        /*
+         * Transaction Update Tests
+         * 1. ShouldSubtractAmountFromSendersChangeBackTxOutput
+         * 2. ShouldOutputAmountForNextRecipient
+         */
+        /// <summary>
+        /// It should subtract the next amount to send from the senders changeback TxOut
+        /// The amount from the changeback TxOut should be equal to the wallet balance minus inital amount to send 
+        /// minus next amount to send
+        /// </summary>
+        [Fact]
+        public void ShouldSubtractAmountFromSendersChangeBackTxOutput()
+        {
+            
+            (bool, string) txResponse = _transaction.CreateTransaction(_wallet, recipientAddress, amountToSend);
+
+
+            txResponse = _transaction.UpdateTransaction(_wallet, nextRecipient, nextAmount);
+
+            decimal changeBackAmount = _transaction.TxOutputs.Where(p => p.Address == _wallet.PublicKey.Key).FirstOrDefault().Amount;
+
+            Assert.Equal(_wallet.Balance - amountToSend - nextAmount, changeBackAmount);
+        }
+
+        /// <summary>
+        /// Should show that the output amount for the next recipient from the 
+        /// newly added transaction is equal to the next recipient amount
+        /// </summary>
+        [Fact]
+        public void ShouldOutputAmountForNextRecipient()
+        {
+            (bool, string) txResponse = _transaction.CreateTransaction(_wallet, recipientAddress, amountToSend);
+
+
+            txResponse = _transaction.UpdateTransaction(_wallet, nextRecipient, nextAmount);
+
+            decimal newRecipientAmount = _transaction.TxOutputs.Where(p => p.Address == nextRecipient).FirstOrDefault().Amount;
+            Assert.Equal(nextAmount, newRecipientAmount);
         }
     }
 }
