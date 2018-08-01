@@ -143,5 +143,7 @@ namespace UgoChain.Tests.Wallets.Tests
             decimal newRecipientAmount = _transaction.TxOutputs.Where(p => p.Address == nextRecipient).FirstOrDefault().Amount;
             Assert.Equal(nextAmount, newRecipientAmount);
         }
+
+      
     }
 }
