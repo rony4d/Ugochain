@@ -87,7 +87,7 @@ namespace UgoChain.Features.Wallet
         {
             //get the current senders change back address and modify the amount to get back
 
-            TxOutput changeBack = TxOutputs.Where(p => p.Address == senderWallet.PublicKey.Key).FirstOrDefault();
+            TxOutput changeBack = TxOutputs.Find(p => p.Address == senderWallet.PublicKey.Key);
 
             if (amountToSend > changeBack.Amount)
             {

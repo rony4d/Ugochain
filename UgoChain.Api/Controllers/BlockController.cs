@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using UgoChain.Api.Hubs;
 using UgoChain.Features;
+using UgoChain.Features.Wallet;
 
 namespace UgoChain.Api.Controllers
 {
@@ -18,8 +19,8 @@ namespace UgoChain.Api.Controllers
       
     public class BlockController : Controller
     {
-        IHubContext<PeersHub> _peerHubContext;
-        IBlockchain _blockchain;
+        readonly IHubContext<PeersHub> _peerHubContext;
+        readonly IBlockchain _blockchain;
         public BlockController(IHubContext<PeersHub> peerHubContext, IBlockchain blockchain)
         {
             _peerHubContext = peerHubContext;
@@ -42,6 +43,7 @@ namespace UgoChain.Api.Controllers
             return Ok(_blockchain.Chain);
         }
 
+        
    
     }
 }

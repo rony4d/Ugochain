@@ -29,5 +29,29 @@ namespace UgoChain.Features.Wallet
             return signature;
         }
 
+        public (Transaction,string) CreateTransaction(string recipientAddress, decimal amountToSend)
+        {
+            if (amountToSend > Balance)
+            {
+                return (null, $"Amount {amountToSend} exceeds balance");
+            }
+
+            (bool, Transaction) response = TransactionPool.Instance.ExistingTransaction(PublicKey.Key);
+            Transaction transaction = response.Item2;
+            if (response.Item1)
+            {
+                transaction.UpdateTransaction(this, recipientAddress, amountToSend);
+            }
+            else
+            {
+                transaction = new Transaction();
+                transaction.CreateTransaction(this, recipientAddress, amountToSend);
+            }
+
+            TransactionPool.Instance.UpdateOrAddTransaction(transaction);
+
+            return (transaction, $"Transaction created successfully");
+        }
+
     }
 }

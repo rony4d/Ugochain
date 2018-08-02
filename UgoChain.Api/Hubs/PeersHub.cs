@@ -64,11 +64,11 @@ namespace UgoChain.Api.Hubs
 
             if (response.Item1)
             {
-                Clients.All.SendAsync("AnnounceFreshBlock", (int)PeerColorsEnum.PeerOne, $"Main peer - {response.Item2}");
+                Clients.All.SendAsync("AnnounceFreshBlock", (int)PeerColorsEnum.Main, $"Main peer - {response.Item2}");
             }
             else
             {
-                Clients.All.SendAsync("AnnounceFreshBlock", (int)PeerColorsEnum.PeerOne, $"Main peer - {response.Item2}");
+                Clients.All.SendAsync("AnnounceFreshBlock", (int)PeerColorsEnum.Main, $"Main peer - {response.Item2}");
             }
             //if (response.Item1)
             //{

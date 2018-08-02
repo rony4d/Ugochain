@@ -59,12 +59,12 @@ namespace UgoChain.Api.PeerTwoSever.Hubs
 
             if (response.Item1)
             {
-                Clients.All.SendAsync("AnnounceFreshBlock", (int)PeerColorsEnum.PeerOne, $"Peer two - {response.Item2}");
+                Clients.All.SendAsync("AnnounceFreshBlock", (int)PeerColorsEnum.PeerTwo, $"Peer two - {response.Item2}");
 
             }
             else
             {
-                Clients.All.SendAsync("AnnounceFreshBlock", (int)PeerColorsEnum.PeerOne, $"Peer two - {response.Item2}");
+                Clients.All.SendAsync("AnnounceFreshBlock", (int)PeerColorsEnum.PeerTwo, $"Peer two - {response.Item2}");
 
             }
 

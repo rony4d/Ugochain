@@ -23,10 +23,13 @@ namespace UgoChain.Tests.Wallets.Tests
     {
         private ITestOutputHelper _testOutputHelper;
         private readonly Wallet _wallet;
+        string recipientAddress = "r4nD0m 4ddr355";
+        decimal amountToSend = 100;
         public WalletTests(ITestOutputHelper testOutputHelper)
         {
             _wallet = new Wallet();
             _testOutputHelper = testOutputHelper;
+
         }
 
         /// <summary>
@@ -240,6 +243,31 @@ namespace UgoChain.Tests.Wallets.Tests
             var newKeyPair = ChainUtility.GenerateNewKeyPair();
             Assert.True(ChainUtility.VerifySignature(pubKey, signature2, hashBytes));
             Assert.False(ChainUtility.VerifySignature(Convert.FromBase64String(newKeyPair.PublicKey), signature2, hashBytes));
+
+        }
+
+        /// <summary>
+        /// This test should create a similar transaction two times
+        /// The goal is to test that the Wallet's CreateTransaction will recognize
+        /// the same senders address and update the transaction from the TransactionPool
+        /// instead of creating a new transaction
+        /// Expected Outcome: We should have a single transaction from the Transaction Pool with 2 TxOutputs
+        /// that have amount which is times 2 of original send amount
+        /// We should also expect that the final ChangeBackTxOutput amount is equal to Wallet Balance minus two times
+        /// the amountSent, Since we are using the same wallet
+        /// </summary>
+        [Fact]
+        public void ShouldDoubleSendAmount()
+        {
+            (Transaction,string) response = _wallet.CreateTransaction(recipientAddress, amountToSend); //1st time
+            Assert.Equal(2, response.Item1.TxOutputs.Count); //Expected 2 TxOuputs:- ChangeBackTxOutput and Recipient TxOutput
+            response = _wallet.CreateTransaction(recipientAddress, amountToSend); //2nd time
+            Assert.Equal(3, response.Item1.TxOutputs.Count); //Expected 3 TxOuputs:- ChangeBackTxOutput, 1st Recipient TxOutput and 2nd Recipient TxOutput
+
+            decimal changeBackTxOutputAmount = response.Item1.TxOutputs.Find(p => p.Address == _wallet.PublicKey.Key).Amount;
+            decimal finalBalance = _wallet.Balance - (amountToSend * 2);
+
+            Assert.Equal(changeBackTxOutputAmount, finalBalance);
 
         }
 

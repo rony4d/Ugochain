@@ -27,5 +27,16 @@ namespace UgoChain.Features.Wallet
                 Transactions.Add(transaction);
             }
         }
+
+        public (bool,Transaction) ExistingTransaction(string sendersAddress)
+        {
+            Transaction transaction = Transactions.Find(p => p.Input.Address == sendersAddress);
+
+            if (transaction != null)
+            {
+                return (true, transaction);
+            }
+            return (false, null);
+        }
     }
 }
