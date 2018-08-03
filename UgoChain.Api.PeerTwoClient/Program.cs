@@ -97,6 +97,29 @@ namespace UgoChain.Api.PeerTwoClient
 
             });
 
+            // when you receive the current transaction pool update other peers' transaction pools with it
+
+            hubConnection.On<int, List<Features.Wallet.Transaction>>("ReceiveTransactions", (peerCode, transactions) =>
+            {
+                string transactionsStr = JsonConvert.SerializeObject(transactions);
+
+                SetConsoleDefaults(peerCode);
+
+                Console.WriteLine($"Current Transactions JSON {transactionsStr} \n" +
+                    $" Transaction Pool Count: {transactions.Count}\n ");
+                for (int i = 0; i < hubConnections.Count; i++)
+                {
+                    hubConnections[i].InvokeAsync("UpdateTransactionPool", transactions);
+                }
+
+            });
+            //Announce transaction pool update
+            hubConnection.On<int, string>("AnnounceTransactionPoolUpdate", (peerCode, announcement) =>
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+
+                Console.WriteLine(announcement);
+            });
             try
             {
                 await hubConnection.StartAsync();

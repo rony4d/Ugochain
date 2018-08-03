@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 using UgoChain.Api.PeerTwoSever.Hubs;
 using UgoChain.PeerTwo.Features;
 
-namespace UgoChain.Api.PeerOneServer.Controllers
+namespace UgoChain.Api.PeerTwoServer.Controllers
 {
     /// <summary>
-    /// Block Controller For Peer One Server
+    /// Ensure all peers have their own Bockchain and Transaction Pool Instance
     /// </summary>
     [Produces("application/json")]
     [Route("api/[controller]")]

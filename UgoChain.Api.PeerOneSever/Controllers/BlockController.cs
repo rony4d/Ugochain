@@ -10,7 +10,7 @@ using UgoChain.PeerOne.Features;
 namespace UgoChain.Api.PeerOneServer.Controllers
 {
     /// <summary>
-    /// Block Controller For Peer One Server
+    /// Ensure all peers have their own Bockchain and Transaction Pool Instance
     /// </summary>
     [Produces("application/json")]
     [Route("api/[controller]")]

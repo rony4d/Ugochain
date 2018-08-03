@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using UgoChain.Api.Models;
 using UgoChain.Features;
+using UgoChain.Features.Wallet;
 
 namespace UgoChain.Api.Hubs
 {
@@ -17,8 +18,9 @@ namespace UgoChain.Api.Hubs
         }
         /// <summary>
         /// When you connect to any peer:
-        /// 1. Share get the info of the peer 
+        /// 1. Get the info of the peer 
         /// 2. Get the current blockchain for that peer and sync with your own blockchain
+        /// 3. Get the Transaction Pool of that peer and add to your own transaction pool
         /// </summary>
         /// <returns></returns>
         public override Task OnConnectedAsync()
@@ -37,7 +39,10 @@ namespace UgoChain.Api.Hubs
             //share this peers' info with the connected client 
             Clients.All.SendAsync("ActiveConnections", ConnectionList.GetActiveConnections());
 
-            //share this peers' blockchain with the connected client
+            //share this peer's TransactionPool
+            Clients.All.SendAsync("ReceiveTransactions", (int)PeersEnum.Main, TransactionPool.Instance.Transactions);
+
+            //share this peer's blockchain with the connected client
             return Clients.All.SendAsync("ReceiveCurrentBlockchain", (int)PeersEnum.Main, _blockchain.Chain);
 
 
@@ -50,15 +55,15 @@ namespace UgoChain.Api.Hubs
         }
 
         /// <summary>
-        /// Update this peers' blockchain with new chain from another peer and update 
+        /// Update this peer's blockchain with new chain from another peer and update 
         /// all other connected peers
+        /// Announce that new blocks have been added
         /// </summary>
         /// <param name="chain"></param>
         /// <returns></returns>
         public void SyncChain(List<Block> chain)
         {
 
-            //return Clients.All.SendAsync("ActiveConnections", ConnectionList.GetActiveConnections());
 
             (bool, string) response = _blockchain.ReplaceChain(new Blockchain() { Chain = chain });
 
@@ -75,6 +80,17 @@ namespace UgoChain.Api.Hubs
             //    Clients.All.SendAsync("ReceiveCurrentBlockchain", (int)PeersEnum.Main, _blockchain.Chain);
 
             //}
+        }
+
+        public void UpdateTransactionPool(List<Transaction> incomingTransactions)
+        {
+            int initialTransactionCount = TransactionPool.Instance.Transactions.Count;
+            for (int i = 0; i < incomingTransactions.Count; i++)
+            {
+                TransactionPool.Instance.UpdateOrAddTransaction(incomingTransactions[i]);
+            }
+            int finalTransactionCount = TransactionPool.Instance.Transactions.Count;
+            Clients.All.SendAsync("AnnounceTransactionPoolUpdate", (int)PeerColorsEnum.Main, $"Main peer - {finalTransactionCount - initialTransactionCount} Transactions Detected and Added");
         }
     }
 }

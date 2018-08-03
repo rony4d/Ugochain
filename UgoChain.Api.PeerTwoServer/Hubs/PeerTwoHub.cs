@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using UgoChain.Api.PeerTwoSever.Models;
 using UgoChain.PeerTwo.Features;
+using UgoChain.PeerTwo.Features.Wallet;
 
 namespace UgoChain.Api.PeerTwoSever.Hubs
 {
@@ -32,6 +33,8 @@ namespace UgoChain.Api.PeerTwoSever.Hubs
 
             //share this peers' info with the connected client 
             Clients.All.SendAsync("ActiveConnections", ConnectionList.GetActiveConnections());
+            //share this peer's TransactionPool
+            Clients.All.SendAsync("ReceiveTransactions", (int)PeersEnum.PeerTwo, TransactionPool.Instance.Transactions);
 
             //share this peers' blockchain with the connected client
             return Clients.All.SendAsync("ReceiveCurrentBlockchain", (int)PeersEnum.PeerTwo, _blockchain.Chain);
@@ -53,8 +56,6 @@ namespace UgoChain.Api.PeerTwoSever.Hubs
         public void SyncChain(List<Block> chain)
         {
 
-            //return Clients.All.SendAsync("ActiveConnections", ConnectionList.GetActiveConnections());
-
             (bool, string) response = _blockchain.ReplaceChain(new Blockchain() { Chain = chain });
 
             if (response.Item1)
@@ -68,14 +69,17 @@ namespace UgoChain.Api.PeerTwoSever.Hubs
 
             }
 
+        }
 
-            //Clients.All.SendAsync("AnnouncePeerSync", (int)PeerColorsEnum.PeerTwo, "Peer Two Sync Duo Memento!!!");
-
-            //if (response.Item1)
-            //{
-            //    Clients.All.SendAsync("ReceiveCurrentBlockchain", (int)PeersEnum.Main, _blockchain.Chain);
-
-            //}
+        public void UpdateTransactionPool(List<Transaction> incomingTransactions)
+        {
+            int initialTransactionCount = TransactionPool.Instance.Transactions.Count;
+            for (int i = 0; i < incomingTransactions.Count; i++)
+            {
+                TransactionPool.Instance.UpdateOrAddTransaction(incomingTransactions[i]);
+            }
+            int finalTransactionCount = TransactionPool.Instance.Transactions.Count;
+            Clients.All.SendAsync("AnnounceTransactionPoolUpdate", (int)PeerColorsEnum.PeerTwo, $"Peer two - {finalTransactionCount - initialTransactionCount} Transactions Detected and Added");
         }
     }
 }

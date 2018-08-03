@@ -1,25 +1,27 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
-using UgoChain.Api.Hubs;
-using UgoChain.Api.Models;
-using UgoChain.Features.Wallet;
+using UgoChain.Api.PeerOneServer.Models;
+using UgoChain.Api.PeerOneSever.Hubs;
+using UgoChain.PeerOne.Features.Wallet;
 
-namespace UgoChain.Api.Controllers
+namespace UgoChain.Api.PeerOneServer.Controllers
 {
+    /// <summary>
+    /// Ensure all peers have their own Bockchain and Transaction Pool Instance
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class TransactionsController : ControllerBase
     {
-        readonly IHubContext<PeersHub> _peerHubContext;
+        readonly IHubContext<PeerOneHub> _peerOneHubContext;
         static readonly Wallet _wallet = new Wallet();
-        public TransactionsController(IHubContext<PeersHub> peerHubContext)
+        public TransactionsController(IHubContext<PeerOneHub> peerOneHubContext)
         {
-            _peerHubContext = peerHubContext;
+            _peerOneHubContext = peerOneHubContext;
 
         }
         /// <summary>
@@ -41,9 +43,9 @@ namespace UgoChain.Api.Controllers
         [HttpPost("createtransaction")]
         public IActionResult CreateTransaction(TransactionViewModel viewModel)
         {
-            (Transaction,string) transactionInfo = _wallet.CreateTransaction(viewModel.RecipientAddress, viewModel.AmountToSend);
+            (Transaction, string) transactionInfo = _wallet.CreateTransaction(viewModel.RecipientAddress, viewModel.AmountToSend);
             //share this peer's TransactionPool
-            _peerHubContext.Clients.All.SendAsync("ReceiveTransactions", (int)PeersEnum.Main, TransactionPool.Instance.Transactions);
+            _peerOneHubContext.Clients.All.SendAsync("ReceiveTransactions", (int)PeersEnum.PeerOne, TransactionPool.Instance.Transactions);
             return RedirectToAction("gettransactions", new { controller = "transactions" });
         }
     }

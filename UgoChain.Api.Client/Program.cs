@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using UgoChain.Api.Client.Models;
 using UgoChain.Features;
+using UgoChain.Features.Wallet;
 
 namespace UgoChain.Api.Client
 {
@@ -87,7 +88,33 @@ namespace UgoChain.Api.Client
                 //hubConnections.ForEachAsync(hubconnection => hubConnection.InvokeAsync("SyncChain", blockchain));
 
             });
-            
+
+            // when you receive the current transaction pool update other peers' transaction pools with it
+
+            hubConnection.On<int, List<Transaction>>("ReceiveTransactions", (peerCode, transactions) =>
+            {
+                string transactionsStr = JsonConvert.SerializeObject(transactions);
+
+                SetConsoleDefaults(peerCode);
+
+                Console.WriteLine($"Current Transactions JSON {transactionsStr} \n" +
+                    $" Transaction Pool Count: {transactions.Count}\n ");
+                for (int i = 0; i < hubConnections.Count; i++)
+                {
+                    hubConnections[i].InvokeAsync("UpdateTransactionPool", transactions);
+                }
+
+            });
+
+            //Announce transaction pool update
+            hubConnection.On<int, string>("AnnounceTransactionPoolUpdate", (peerCode, announcement) =>
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+
+                Console.WriteLine(announcement);
+            });
+
+
             try
             {
                 await hubConnection.StartAsync();

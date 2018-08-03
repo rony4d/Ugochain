@@ -5,9 +5,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using UgoChain.Api.PeerOneServer.Models;
 using UgoChain.PeerOne.Features;
+using UgoChain.PeerOne.Features.Wallet;
 
 namespace UgoChain.Api.PeerOneSever.Hubs
 {
+    /// <summary>
+    /// Ensure all peers have their own Transaction Pool Instance
+    /// </summary>
     public class PeerOneHub:Hub
     {
         IBlockchain _blockchain;
@@ -31,6 +35,9 @@ namespace UgoChain.Api.PeerOneSever.Hubs
 
             //share this peers' info with the connected client 
             Clients.All.SendAsync("ActiveConnections", ConnectionList.GetActiveConnections());
+
+            //share this peer's TransactionPool
+            Clients.All.SendAsync("ReceiveTransactions", (int)PeersEnum.PeerOne, TransactionPool.Instance.Transactions);
 
             //share this peers' blockchain with the connected client
             return Clients.All.SendAsync("ReceiveCurrentBlockchain", (int)PeersEnum.PeerOne, _blockchain.Chain);
@@ -76,6 +83,17 @@ namespace UgoChain.Api.PeerOneSever.Hubs
             //}
         }
 
-     
+        public void UpdateTransactionPool(List<Transaction> incomingTransactions)
+        {
+            int initialTransactionCount = TransactionPool.Instance.Transactions.Count;
+            for (int i = 0; i < incomingTransactions.Count; i++)
+            {
+                TransactionPool.Instance.UpdateOrAddTransaction(incomingTransactions[i]);
+            }
+            int finalTransactionCount = TransactionPool.Instance.Transactions.Count;
+            Clients.All.SendAsync("AnnounceTransactionPoolUpdate", (int)PeerColorsEnum.PeerOne, $"Peer one - {finalTransactionCount - initialTransactionCount} Transactions Detected and Added");
+        }
+
+
     }
 }
