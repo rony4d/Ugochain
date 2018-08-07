@@ -1,0 +1,2 @@
+1. Dockerize the peers: https://docs.docker.com/engine/examples/dotnetcore/
+2. Add UserInterface to enable currency transfer

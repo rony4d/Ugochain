@@ -33,6 +33,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UgoChain.PeerTwo.Features",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MainPeer", "MainPeer", "{70192424-8505-436A-8C3D-781FC849B867}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B1B6117F-2926-40DD-ADE5-BD02A7B1C857}"
+	ProjectSection(SolutionItems) = preProject
+		ToDo.txt = ToDo.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

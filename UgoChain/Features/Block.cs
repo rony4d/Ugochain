@@ -11,6 +11,8 @@ namespace UgoChain.Features
 
         public const int MINE_RATE = 3000; //3000 milliseconds
 
+        public const decimal MINER_REWARD = 10; // Miners reward for mining a block
+
         private const double GenesisTime = 1531044120; //unix time
 
         public string TimeStamp { get ; set; }

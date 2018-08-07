@@ -46,5 +46,14 @@ namespace UgoChain.Api.Controllers
             _peerHubContext.Clients.All.SendAsync("ReceiveTransactions", (int)PeersEnum.Main, TransactionPool.Instance.Transactions);
             return RedirectToAction("gettransactions", new { controller = "transactions" });
         }
+        /// <summary>
+        /// Returns the public key of the wallet
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("publickkey")]
+        public IActionResult GetPublicKey()
+        {
+            return Ok(_wallet.PublicKey);
+        }
     }
 }

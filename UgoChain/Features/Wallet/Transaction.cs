@@ -105,5 +105,28 @@ namespace UgoChain.Features.Wallet
             return (true, "Transaction Updated Successfully");
 
         }
+
+        /// <summary>
+        /// 1. Reward transaction has only one TxOutput which has the miners address
+        /// 2. The TxInput is signed by the instance of the blockchain wallet
+        /// </summary>
+        /// <param name="minerWallet"></param>
+        /// <param name="blockchainWallet"></param>
+        /// <returns></returns>
+        public (bool, string) CreateRewardTransaction(Wallet minerWallet)
+        {
+            Wallet blockchainWallet = Wallet.GetBlockchainWallet();
+
+            TxOutput minerTxOutput = new TxOutput()
+            {
+                Address = minerWallet.PublicKey.Key,
+                Amount = Block.MINER_REWARD
+            };
+            TxOutputs.Add(minerTxOutput);
+
+            SignTransaction(blockchainWallet);
+            return (true, "Reward Transaction Created Successfully");
+        }
+
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using UgoChain.Features;
 using UgoChain.Features.Wallet;
 using Xunit;
 using Xunit.Abstractions;
@@ -39,7 +40,7 @@ namespace UgoChain.Tests.Wallets.Tests
             Transaction transaction2 = new Transaction();
             TransactionPool.Instance.UpdateOrAddTransaction(transaction1);
             TransactionPool.Instance.UpdateOrAddTransaction(transaction2);
-
+            
             Assert.Equal(2, TransactionPool.Instance.Transactions.Count);
 
         }
@@ -80,6 +81,73 @@ namespace UgoChain.Tests.Wallets.Tests
 
             Assert.NotEqual(oldTransactionString, updatedTransactionFromPoolString);
 
+        }
+
+
+        //Mixing Valid and Corrupt Transactions
+
+        /// <summary>
+        /// Should Invalidate a Transaction Pool with corrupt transactions
+        /// Each transaction should be created by a different wallet
+        /// 1. Run a loop and add a corrupt transaction every even number iteration
+        /// </summary>
+        [Fact]
+        public void ShouldInvalidateCorruptTransactionsInPool()
+        {
+            //Add transactions to pool
+            for (int i = 0; i < 10; i++)
+            {
+                _wallet = new Wallet();
+                _wallet.CreateTransaction($"recipient 0x1234:{i}", 34.5m);             
+            }
+
+            //corrupt even number transactions
+            for (int i = 0; i < TransactionPool.Instance.Transactions.Count; i++)
+            {
+                if (i%2 == 0)
+                {
+                    TransactionPool.Instance.Transactions[i].TxOutputs[0].Amount = 200;
+                }
+            }
+
+            var response = TransactionPool.Instance.ValidTransactions();
+            bool isValid = response.Item1;
+            string invalidTransactionsJsonString = response.Item3;
+            Assert.False(isValid);
+            _testOutputHelper.WriteLine(invalidTransactionsJsonString);
+        }
+        /// Should Validate a Transaction Pool with valid transactions
+        /// Each transaction should be created by a different wallet
+        /// 1. Run a loop and add a corrupt transaction every even number iteration
+        [Fact]
+        public void ShouldValidateValidTransactionsInPool()
+        {
+            //Add transactions to pool
+            for (int i = 0; i < 10; i++)
+            {
+                _wallet = new Wallet();
+                _wallet.CreateTransaction($"recipient 0x1234:{i}", 34.5m);
+            }
+
+            bool isValid = TransactionPool.Instance.ValidTransactions().Item1;
+            Assert.True(isValid);
+        }
+
+        /// <summary>
+        /// Should create a miners wallet and test if the miner's reward is the 
+        /// amount in the single TxOuput
+        /// </summary>
+        [Fact]
+        public void ShouldCreateRewardTransactionForMiner()
+        {
+            //we will use _wallet as miners wallet
+            //reinitialize transaction to empty object
+            _transaction = new Transaction();
+            (bool,string) response = _transaction.CreateRewardTransaction(_wallet);
+
+            Assert.True(response.Item1);
+            decimal minersReward = _transaction.TxOutputs.Find(p => p.Address == _wallet.PublicKey.Key).Amount;
+            Assert.Equal(Block.MINER_REWARD, minersReward);
         }
     }
 }

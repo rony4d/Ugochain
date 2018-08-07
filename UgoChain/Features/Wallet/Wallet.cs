@@ -6,6 +6,7 @@ namespace UgoChain.Features.Wallet
 {
     public class Wallet
     {
+        public const string BLOCKCHAIN_ADDRESS_MAIN_PEER = "m41np33r4ddr335";
         public decimal Balance { get; set; }
         public PublicKey PublicKey { get; set; }
         public KeyPair KeyPair { get; set; }
@@ -16,6 +17,8 @@ namespace UgoChain.Features.Wallet
             PublicKey = new PublicKey() { Key = KeyPair.PublicKey };
             Balance = 400;
         }
+
+
         public override string ToString()
         {
             return $"Wallet - " +
@@ -51,6 +54,18 @@ namespace UgoChain.Features.Wallet
             TransactionPool.Instance.UpdateOrAddTransaction(transaction);
 
             return (transaction, $"Transaction created successfully");
+        }
+
+        /// <summary>
+        /// Modify implementation later
+        /// </summary>
+        public static Wallet GetBlockchainWallet()
+        {
+            return new Wallet()
+            {
+                KeyPair = ChainUtility.GenerateNewKeyPair(),
+                PublicKey = new PublicKey() { Key = BLOCKCHAIN_ADDRESS_MAIN_PEER }
+            };
         }
 
     }
