@@ -9,6 +9,7 @@ namespace UgoChain.PeerTwo.Features.Wallet
         public decimal Balance { get; set; }
         public UgoChain.Features.Wallet.PublicKey PublicKey { get; set; }
         public UgoChain.Features.Wallet.KeyPair KeyPair { get; set; }
+        public const string BLOCKCHAIN_ADDRESS_PEER_TWO = "p33r7w04ddr335";
 
         public Wallet()
         {
@@ -51,6 +52,18 @@ namespace UgoChain.PeerTwo.Features.Wallet
             TransactionPool.Instance.UpdateOrAddTransaction(transaction);
 
             return (transaction, $"Transaction created successfully");
+        }
+
+        /// <summary>
+        /// Modify implementation later
+        /// </summary>
+        public static Wallet GetBlockchainWallet()
+        {
+            return new Wallet()
+            {
+                KeyPair = ChainUtility.GenerateNewKeyPair(),
+                PublicKey = new UgoChain.Features.Wallet.PublicKey() { Key = BLOCKCHAIN_ADDRESS_PEER_TWO }
+            };
         }
 
     }

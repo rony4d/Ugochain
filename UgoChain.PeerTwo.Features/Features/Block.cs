@@ -13,6 +13,8 @@ namespace UgoChain.PeerTwo.Features
 
         private const double GenesisTime = 1531044120; //unix time
 
+        public const decimal MINER_REWARD = 10; // Miners reward for mining a block
+
         public string TimeStamp { get; set; }
         public string LastHash { get; set; }
         public string Hash { get; set; }

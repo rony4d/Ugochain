@@ -94,6 +94,12 @@ namespace UgoChain.Api.PeerOneSever.Hubs
             Clients.All.SendAsync("AnnounceTransactionPoolUpdate", (int)PeerColorsEnum.PeerOne, $"Peer one - {finalTransactionCount - initialTransactionCount} Transactions Detected and Added");
         }
 
-
+        /// <summary>
+        /// Tells other peers to clear Transaction Pool when new block is mined
+        /// </summary>
+        public void ClearTransactionPoolPeerToPeer()
+        {
+            TransactionPool.Instance.Transactions.Clear();
+        }
     }
 }

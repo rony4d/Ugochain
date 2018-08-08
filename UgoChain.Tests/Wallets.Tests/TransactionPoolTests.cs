@@ -149,5 +149,26 @@ namespace UgoChain.Tests.Wallets.Tests
             decimal minersReward = _transaction.TxOutputs.Find(p => p.Address == _wallet.PublicKey.Key).Amount;
             Assert.Equal(Block.MINER_REWARD, minersReward);
         }
+
+        /// <summary>
+        /// Adds transactions to the pool
+        /// Then clears the transactions
+        /// </summary>
+        [Fact]
+        public void ShouldClearTransactionPool()
+        {
+            //Add 10 transactions to pool
+            for (int i = 0; i < 10; i++)
+            {
+                _wallet = new Wallet();
+                _wallet.CreateTransaction($"recipient 0x1234:{i}", 34.5m);
+            }
+
+            Assert.Equal(10, TransactionPool.Instance.Transactions.Count);
+            TransactionPool.Instance.Transactions.Clear();
+
+            Assert.Equal(0, TransactionPool.Instance.Transactions.Count);
+
+        }
     }
 }

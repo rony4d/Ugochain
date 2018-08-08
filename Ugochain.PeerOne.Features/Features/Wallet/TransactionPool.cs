@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -37,6 +38,42 @@ namespace UgoChain.PeerOne.Features.Wallet
                 return (true, transaction);
             }
             return (false, null);
+        }
+
+        /// <summary>
+        /// To get valid transactions
+        /// 1. The total TxOutput amounts should add up to the TxInput Amount: Prevents double spending
+        /// 2. Verify the signature of every transaction to ensure the TxOuputs were not modified after it was signed
+        /// </summary>
+        /// <returns>status(true or false),Valid Transactions as a List and Invalid Transactions as a string(serialized)</returns>
+        public (bool, List<Transaction>, string) ValidTransactions()
+        {
+            List<Transaction> validTransactions = new List<Transaction>();
+            List<Transaction> invalidTransactions = new List<Transaction>();
+            string invalidTransactionsJsonString = null;
+            foreach (Transaction transaction in Transactions)
+            {
+                decimal txInputAmount = transaction.Input.Amount;
+                decimal totalTxOutputAmount = transaction.TxOutputs.Sum(p => p.Amount);
+
+                if (txInputAmount != totalTxOutputAmount)
+                {
+                    invalidTransactions.Add(transaction);
+                }
+
+                if (!transaction.VerifyTransaction())
+                {
+                    invalidTransactions.Add(transaction);
+                }
+                validTransactions.Add(transaction);
+            }
+            if (invalidTransactions.Count > 0)
+            {
+                invalidTransactionsJsonString = JsonConvert.SerializeObject(invalidTransactions);
+                return (false, validTransactions, invalidTransactionsJsonString);
+            }
+
+            return (true, validTransactions, invalidTransactionsJsonString);
         }
     }
 }

@@ -120,6 +120,21 @@ namespace UgoChain.Api.PeerTwoClient
 
                 Console.WriteLine(announcement);
             });
+
+            //Tell all peers to clear transaction pools
+            hubConnection.On<int, string>("ClearTransactionPool", (peerCode, announcement) =>
+            {
+                SetConsoleDefaults(peerCode);
+
+                Console.WriteLine(announcement);
+
+                for (int i = 0; i < hubConnections.Count; i++)
+                {
+                    hubConnections[i].InvokeAsync("ClearTransactionPoolPeerToPeer");
+                }
+
+            });
+
             try
             {
                 await hubConnection.StartAsync();

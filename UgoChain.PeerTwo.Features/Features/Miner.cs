@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using UgoChain.Features.Wallet;
+using UgoChain.PeerTwo.Features.Wallet;
 
-namespace UgoChain.Features
+namespace UgoChain.PeerTwo.Features
 {
     public class Miner
     {
@@ -31,7 +31,7 @@ namespace UgoChain.Features
         public void Mine()
         {
             // 1. Get valid transactions
-            var response = TransactionPool.Instance.ValidTransactions(); 
+            var response = TransactionPool.Instance.ValidTransactions();
             ValidTransactions = response.Item2;
 
             if (!response.Item1)
@@ -40,8 +40,8 @@ namespace UgoChain.Features
             // 2. Create reward transaction for miner
             if (ValidTransactions.Count > 0)
             {
-                Transaction rewardTransaction = new Transaction(); 
-                rewardTransaction.CreateRewardTransaction(MinerWallet); 
+                Transaction rewardTransaction = new Transaction();
+                rewardTransaction.CreateRewardTransaction(MinerWallet);
                 ValidTransactions.Add(rewardTransaction);
             }
             //3. Create block consisiting of valid transactions

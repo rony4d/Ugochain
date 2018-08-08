@@ -2,20 +2,21 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using UgoChain.Features.Wallet;
+using UgoChain.PeerOne.Features;
+using UgoChain.PeerOne.Features.Wallet;
 
-namespace UgoChain.Features
+namespace Ugochain.PeerOne.Features
 {
     public class Miner
     {
         public Blockchain Blockchain { get; set; }
         public TransactionPool TransactionPool { get; set; }
-        public Wallet.Wallet MinerWallet { get; set; }
+        public Wallet MinerWallet { get; set; }
 
         public List<Transaction> ValidTransactions { get; set; }
         public List<Transaction> InvalidTransactions { get; set; }
 
-        public Miner(Blockchain blockchain, TransactionPool transactionPool, Wallet.Wallet wallet)
+        public Miner(Blockchain blockchain, TransactionPool transactionPool, Wallet wallet)
         {
             Blockchain = blockchain;
             TransactionPool = transactionPool;
@@ -31,7 +32,7 @@ namespace UgoChain.Features
         public void Mine()
         {
             // 1. Get valid transactions
-            var response = TransactionPool.Instance.ValidTransactions(); 
+            var response = TransactionPool.Instance.ValidTransactions();
             ValidTransactions = response.Item2;
 
             if (!response.Item1)
@@ -40,8 +41,8 @@ namespace UgoChain.Features
             // 2. Create reward transaction for miner
             if (ValidTransactions.Count > 0)
             {
-                Transaction rewardTransaction = new Transaction(); 
-                rewardTransaction.CreateRewardTransaction(MinerWallet); 
+                Transaction rewardTransaction = new Transaction();
+                rewardTransaction.CreateRewardTransaction(MinerWallet);
                 ValidTransactions.Add(rewardTransaction);
             }
             //3. Create block consisiting of valid transactions

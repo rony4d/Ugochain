@@ -92,5 +92,13 @@ namespace UgoChain.Api.Hubs
             int finalTransactionCount = TransactionPool.Instance.Transactions.Count;
             Clients.All.SendAsync("AnnounceTransactionPoolUpdate", (int)PeerColorsEnum.Main, $"Main peer - {finalTransactionCount - initialTransactionCount} Transactions Detected and Added");
         }
+
+        /// <summary>
+        /// Tells other peers to clear Transaction Pool when new block is mined
+        /// </summary>
+        public void ClearTransactionPoolPeerToPeer()
+        {
+            TransactionPool.Instance.Transactions.Clear();
+        }
     }
 }
