@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UgoChain.Features;
 using UgoChain.Features.Wallet;
@@ -18,6 +19,7 @@ namespace UgoChain.Tests.Wallets.Tests
         //string nextRecipient = "n3x7 a44r355";
         //decimal nextAmount = 40;
         decimal amountToSend = 50;
+        private Features.Blockchain _blockchain { get; set; }
 
         public TransactionPoolTests(ITestOutputHelper testOutputHelper)
         {
@@ -25,7 +27,7 @@ namespace UgoChain.Tests.Wallets.Tests
             _wallet = new Wallet();
             _transaction = new Transaction();
             _transaction.CreateTransaction(_wallet, recipientAddress, amountToSend);
-
+            _blockchain = new Features.Blockchain();
         }
         /*
        * Transaction Pool Tests
@@ -98,7 +100,7 @@ namespace UgoChain.Tests.Wallets.Tests
             for (int i = 0; i < 10; i++)
             {
                 _wallet = new Wallet();
-                _wallet.CreateTransaction($"recipient 0x1234:{i}", 34.5m);             
+                _wallet.CreateTransaction($"recipient 0x1234:{i}", 34.5m, _blockchain);             
             }
 
             //corrupt even number transactions
@@ -126,7 +128,7 @@ namespace UgoChain.Tests.Wallets.Tests
             for (int i = 0; i < 10; i++)
             {
                 _wallet = new Wallet();
-                _wallet.CreateTransaction($"recipient 0x1234:{i}", 34.5m);
+                _wallet.CreateTransaction($"recipient 0x1234:{i}", 34.5m, _blockchain);
             }
 
             bool isValid = TransactionPool.Instance.ValidTransactions().Item1;
@@ -161,13 +163,37 @@ namespace UgoChain.Tests.Wallets.Tests
             for (int i = 0; i < 10; i++)
             {
                 _wallet = new Wallet();
-                _wallet.CreateTransaction($"recipient 0x1234:{i}", 34.5m);
+                _wallet.CreateTransaction($"recipient 0x1234:{i}", 34.5m, _blockchain);
             }
 
             Assert.Equal(10, TransactionPool.Instance.Transactions.Count);
             TransactionPool.Instance.Transactions.Clear();
 
             Assert.Equal(0, TransactionPool.Instance.Transactions.Count);
+
+        }
+
+
+        /// <summary>
+        /// Get most recent transaction by ordering by stamp stamp
+        /// and getting the first value
+        /// </summary>
+        [Fact]
+        public void ShouldOrderTransactionsByTampstamp()
+        {
+            //Add 10 transactions to pool
+            for (int i = 0; i < 10; i++)
+            {
+                _wallet = new Wallet();
+                _wallet.CreateTransaction($"recipient 0x1234:{i}", 34.5m, _blockchain);
+                _testOutputHelper.WriteLine($"timestamp string: { TransactionPool.Instance.Transactions [i].Input.TimeStamp} time stamp datetime {Helper.ConvertLocalTime(double.Parse(TransactionPool.Instance.Transactions[i].Input.TimeStamp))}");
+            }
+            Transaction recentwalletTxInput = TransactionPool.Instance.Transactions.OrderByDescending(p => Helper.ConvertLocalTime(double.Parse(p.Input.TimeStamp))).FirstOrDefault();
+
+            _testOutputHelper.WriteLine("******Chosen Date*******");
+            _testOutputHelper.WriteLine($"timestamp string: { recentwalletTxInput.Input.TimeStamp} time stamp datetime {Helper.ConvertLocalTime(double.Parse(recentwalletTxInput.Input.TimeStamp))}");
+
+
 
         }
     }

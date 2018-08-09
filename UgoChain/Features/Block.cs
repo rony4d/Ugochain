@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
+using UgoChain.Features.Wallet;
 
 namespace UgoChain.Features
 {
@@ -13,7 +15,7 @@ namespace UgoChain.Features
 
         public const decimal MINER_REWARD = 10; // Miners reward for mining a block
 
-        private const double GenesisTime = 1531044120; //unix time
+        public const double GenesisTime = 1531044120; //unix time
 
         public string TimeStamp { get ; set; }
         public string LastHash { get; set; }
@@ -51,6 +53,10 @@ namespace UgoChain.Features
         public static Block GenesisBlock()
         {
             // mine the genesis block with the diffculty of the system
+            //Create default transaction
+            //Transaction genesisTransaction = new Transaction() { Id = "genR0ny4D", Input = new TxInput(), TxOutputs = new List<TxOutput>() };
+            //List<Transaction> txList = new List<Transaction>();
+            //txList.Add(genesisTransaction);
             return new Block(GenesisTime.ToString(),"xxxxxx","gen0SHA-94-01-25","",0,DIFFICULTY);
         }
 

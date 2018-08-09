@@ -1,4 +1,5 @@
 ﻿
+using Newtonsoft.Json;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
@@ -25,11 +26,13 @@ namespace UgoChain.Tests.Wallets.Tests
         private readonly Wallet _wallet;
         string recipientAddress = "r4nD0m 4ddr355";
         decimal amountToSend = 100;
+        private Features.Blockchain _blockchain { get; set; }
+
         public WalletTests(ITestOutputHelper testOutputHelper)
         {
             _wallet = new Wallet();
             _testOutputHelper = testOutputHelper;
-
+            _blockchain = new Features.Blockchain();
         }
 
         /// <summary>
@@ -259,9 +262,9 @@ namespace UgoChain.Tests.Wallets.Tests
         [Fact]
         public void ShouldDoubleSendAmount()
         {
-            (Transaction,string) response = _wallet.CreateTransaction(recipientAddress, amountToSend); //1st time
+            (Transaction,string) response = _wallet.CreateTransaction(recipientAddress, amountToSend, _blockchain); //1st time
             Assert.Equal(2, response.Item1.TxOutputs.Count); //Expected 2 TxOuputs:- ChangeBackTxOutput and Recipient TxOutput
-            response = _wallet.CreateTransaction(recipientAddress, amountToSend); //2nd time
+            response = _wallet.CreateTransaction(recipientAddress, amountToSend, _blockchain); //2nd time
             Assert.Equal(3, response.Item1.TxOutputs.Count); //Expected 3 TxOuputs:- ChangeBackTxOutput, 1st Recipient TxOutput and 2nd Recipient TxOutput
 
             decimal changeBackTxOutputAmount = response.Item1.TxOutputs.Find(p => p.Address == _wallet.PublicKey.Key).Amount;
@@ -271,6 +274,114 @@ namespace UgoChain.Tests.Wallets.Tests
 
         }
 
-  
+
+        #region calculate balance test
+
+        /// <summary>
+        /// Should calculate the blockchain balance that matches the recipient
+        /// </summary>
+        [Fact]
+        public void ShouldCalculateRecipientBalance()
+        {
+            Wallet senderWallet = new Wallet(); // Each wallet has initial balance of 400
+            //_wallet will act as recipient wallet
+            decimal addBalance = 100;
+            int repeat = 3;
+
+            for (int i = 0; i < repeat; i++)
+            {
+                //Recall, when creating these transactions, they are being added to the transaction pool
+                senderWallet.CreateTransaction(_wallet.PublicKey.Key, addBalance, _blockchain);
+            }
+
+            //Add the above transactions to the blockchain
+            _blockchain.AddBlock(JsonConvert.SerializeObject(TransactionPool.Instance.Transactions));
+
+            //Calculate the balance of the recipient wallet
+
+            decimal recipientBalance = _wallet.CalculateBalance(_blockchain);
+
+            decimal expectedRecipientBalance = Wallet.WALLET_INITIAL_BALANCE + (addBalance * repeat);
+
+            Assert.Equal(expectedRecipientBalance, recipientBalance);
+        }
+        
+        /// <summary>
+        /// Should calculate the blockchain balance that matches the sender
+        /// </summary>
+        [Fact]
+        public void ShouldCalculateSenderBalance()
+        {
+            Wallet senderWallet = new Wallet(); // Each wallet has initial balance of 400
+            //_wallet will act as recipient wallet
+            decimal addBalance = 100;
+            int repeat = 3;
+
+            for (int i = 0; i < repeat; i++)
+            {
+                //Recall, when creating these transactions, they are being added to the transaction pool
+                senderWallet.CreateTransaction(_wallet.PublicKey.Key, addBalance, _blockchain);
+            }
+
+            //Add the above transactions to the blockchain
+            _blockchain.AddBlock(JsonConvert.SerializeObject(TransactionPool.Instance.Transactions));
+
+            //Calculate the balance of the sender wallet
+
+            decimal senderWalletBalance = senderWallet.CalculateBalance(_blockchain);
+
+            decimal expectedSenderWalletBalance = Wallet.WALLET_INITIAL_BALANCE - (addBalance * repeat);
+
+            Assert.Equal(expectedSenderWalletBalance, senderWalletBalance);
+        }
+
+
+        // The test below is where the recipient now sends out money, hence conducting a transaction
+    
+        /// <summary>
+        /// In this test,
+        /// 1. The recipient should create a transaction and send to the sender
+        /// 2. The sender should also create a transaction and send to the recipient
+        /// We want to verify that the recipient balance will be calculated from the most recent tramsactions
+        /// and that the final balance will be accurate after subtracitng amount sent and adding amount received
+        /// </summary>
+        [Fact]
+        public void ShouldCalculateBalanceOfRecipientAfterCreatingTransaction()
+        {
+            Wallet senderWallet = new Wallet(); // Each wallet has initial balance of 400
+            //_wallet will act as recipient wallet
+            decimal addBalance = 100;
+            decimal subtractBalance = 50;
+            int repeat = 3;
+
+            for (int i = 0; i < repeat; i++)
+            {
+                //Recall, when creating these transactions, they are being added to the transaction pool
+                //1. Recipient sends out subtract balance to the sender wallet, repeat times
+                _wallet.CreateTransaction(senderWallet.PublicKey.Key, subtractBalance, _blockchain);
+            }
+            //Add the above transactions to the blockchain
+            _blockchain.AddBlock(JsonConvert.SerializeObject(TransactionPool.Instance.Transactions));
+
+            decimal firstRecipientBalance = _wallet.CalculateBalance(_blockchain); // this test has been run and found to be correct, so this holds
+
+
+            //2. Sender sends out add balance to the recipient
+            senderWallet.CreateTransaction(_wallet.PublicKey.Key, addBalance, _blockchain);
+            
+            //Add the above transactions to the blockchain
+            _blockchain.AddBlock(JsonConvert.SerializeObject(TransactionPool.Instance.Transactions));
+
+            //Calculate the balance of the recipient wallet
+
+            decimal finalRecipientBalance = _wallet.CalculateBalance(_blockchain);
+
+            decimal expectedRecipientBalance = firstRecipientBalance + addBalance;
+
+            Assert.Equal(expectedRecipientBalance, finalRecipientBalance);
+        }
+
+        #endregion
+
     }
 }

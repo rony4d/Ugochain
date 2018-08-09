@@ -11,12 +11,14 @@ namespace UgoChain.PeerOne.Features.Wallet
         public UgoChain.Features.Wallet.KeyPair KeyPair { get; set; }
 
         public const string BLOCKCHAIN_ADDRESS_PEER_ONE = "p33r0n34ddr335";
+        public const decimal WALLET_INITIAL_BALANCE = 400;
+
 
         public Wallet()
         {
             KeyPair = ChainUtility.GenerateNewKeyPair();
             PublicKey = new UgoChain.Features.Wallet.PublicKey() { Key = KeyPair.PublicKey };
-            Balance = 400;
+            Balance = WALLET_INITIAL_BALANCE;
         }
         public override string ToString()
         {

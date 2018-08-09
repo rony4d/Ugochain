@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using UgoChain.Api.Hubs;
 using UgoChain.Api.Models;
+using UgoChain.Features;
 using UgoChain.Features.Wallet;
 
 namespace UgoChain.Api.Controllers
@@ -16,11 +17,13 @@ namespace UgoChain.Api.Controllers
     public class TransactionsController : ControllerBase
     {
         readonly IHubContext<PeersHub> _peerHubContext;
+        readonly IBlockchain _blockchain;
+
         static readonly Wallet _wallet = new Wallet();
-        public TransactionsController(IHubContext<PeersHub> peerHubContext)
+        public TransactionsController(IHubContext<PeersHub> peerHubContext, IBlockchain blockchain)
         {
             _peerHubContext = peerHubContext;
-
+            _blockchain = blockchain;
         }
         /// <summary>
         /// Get Transactions from local transaction pool
@@ -41,7 +44,7 @@ namespace UgoChain.Api.Controllers
         [HttpPost("createtransaction")]
         public IActionResult CreateTransaction(TransactionViewModel viewModel)
         {
-            (Transaction,string) transactionInfo = _wallet.CreateTransaction(viewModel.RecipientAddress, viewModel.AmountToSend);
+            (Transaction,string) transactionInfo = _wallet.CreateTransaction(viewModel.RecipientAddress, viewModel.AmountToSend, _blockchain as Blockchain);
             //share this peer's TransactionPool
             _peerHubContext.Clients.All.SendAsync("ReceiveTransactions", (int)PeersEnum.Main, TransactionPool.Instance.Transactions);
             return RedirectToAction("gettransactions", new { controller = "transactions" });
