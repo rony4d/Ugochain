@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using UgoChain.Api.PeerTwoServer.Models;
 using UgoChain.PeerTwo.Features.Wallet;
 using UgoChain.Api.PeerTwoSever.Hubs;
+using UgoChain.PeerTwo.Features;
 
 namespace UgoChain.Api.PeerTwoServer.Controllers
 {
@@ -19,9 +20,12 @@ namespace UgoChain.Api.PeerTwoServer.Controllers
     {
         readonly IHubContext<PeerTwoHub> _peerTwoHubContext;
         static readonly Wallet _wallet = new Wallet();
-        public TransactionsController(IHubContext<PeerTwoHub> peerTwoHubContext)
+        readonly IBlockchain _blockchain;
+
+        public TransactionsController(IHubContext<PeerTwoHub> peerTwoHubContext, IBlockchain blockchain)
         {
             _peerTwoHubContext = peerTwoHubContext;
+            _blockchain = blockchain;
 
         }
         /// <summary>
@@ -43,10 +47,29 @@ namespace UgoChain.Api.PeerTwoServer.Controllers
         [HttpPost("createtransaction")]
         public IActionResult CreateTransaction(TransactionViewModel viewModel)
         {
-            (Transaction, string) transactionInfo = _wallet.CreateTransaction(viewModel.RecipientAddress, viewModel.AmountToSend);
+            (Transaction, string) transactionInfo = _wallet.CreateTransaction(viewModel.RecipientAddress, viewModel.AmountToSend,_blockchain as Blockchain);
             //share this peer's TransactionPool
             _peerTwoHubContext.Clients.All.SendAsync("ReceiveTransactions", (int)PeersEnum.PeerTwo, TransactionPool.Instance.Transactions);
             return RedirectToAction("gettransactions", new { controller = "transactions" });
         }
+
+        /// <summary>
+        /// Returns the public key of the wallet
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("publickkey")]
+        public IActionResult GetPublicKey()
+        {
+            return Ok(_wallet.PublicKey);
+        }
+
+
+        [HttpGet("walletbalance")]
+        public IActionResult GetWalletBalance()
+        {
+            decimal balance = _wallet.CalculateBalance(_blockchain as Blockchain);
+            return Ok(balance);
+        }
+
     }
 }

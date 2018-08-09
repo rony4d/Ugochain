@@ -58,5 +58,12 @@ namespace UgoChain.Api.Controllers
         {
             return Ok(_wallet.PublicKey);
         }
+
+        [HttpGet("walletbalance")]
+        public IActionResult GetWalletBalance()
+        {
+            decimal balance = _wallet.CalculateBalance(_blockchain as Blockchain);
+            return Ok(balance);
+        }
     }
 }

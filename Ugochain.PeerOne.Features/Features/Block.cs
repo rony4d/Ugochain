@@ -11,7 +11,7 @@ namespace UgoChain.PeerOne.Features
 
         public const int MINE_RATE = 3000; //3000 milliseconds
 
-        private const double GenesisTime = 1531044120; //unix time
+        public const double GenesisTime = 1531044120; //unix time
 
         public const decimal MINER_REWARD = 10; // Miners reward for mining a block
 

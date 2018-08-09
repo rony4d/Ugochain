@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using UgoChain.Api.PeerOneServer.Models;
 using UgoChain.Api.PeerOneSever.Hubs;
+using UgoChain.PeerOne.Features;
 using UgoChain.PeerOne.Features.Wallet;
 
 namespace UgoChain.Api.PeerOneServer.Controllers
@@ -19,10 +20,12 @@ namespace UgoChain.Api.PeerOneServer.Controllers
     {
         readonly IHubContext<PeerOneHub> _peerOneHubContext;
         static readonly Wallet _wallet = new Wallet();
-        public TransactionsController(IHubContext<PeerOneHub> peerOneHubContext)
+        readonly IBlockchain _blockchain;
+
+        public TransactionsController(IHubContext<PeerOneHub> peerOneHubContext, IBlockchain blockchain)
         {
             _peerOneHubContext = peerOneHubContext;
-
+            _blockchain = blockchain;
         }
         /// <summary>
         /// Get Transactions from local transaction pool
@@ -43,10 +46,28 @@ namespace UgoChain.Api.PeerOneServer.Controllers
         [HttpPost("createtransaction")]
         public IActionResult CreateTransaction(TransactionViewModel viewModel)
         {
-            (Transaction, string) transactionInfo = _wallet.CreateTransaction(viewModel.RecipientAddress, viewModel.AmountToSend);
+            (Transaction, string) transactionInfo = _wallet.CreateTransaction(viewModel.RecipientAddress, viewModel.AmountToSend,_blockchain as Blockchain);
             //share this peer's TransactionPool
             _peerOneHubContext.Clients.All.SendAsync("ReceiveTransactions", (int)PeersEnum.PeerOne, TransactionPool.Instance.Transactions);
             return RedirectToAction("gettransactions", new { controller = "transactions" });
+        }
+
+        /// <summary>
+        /// Returns the public key of the wallet
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("publickkey")]
+        public IActionResult GetPublicKey()
+        {
+            return Ok(_wallet.PublicKey);
+        }
+
+
+        [HttpGet("walletbalance")]
+        public IActionResult GetWalletBalance()
+        {
+            decimal balance = _wallet.CalculateBalance(_blockchain as Blockchain);
+            return Ok(balance);
         }
     }
 }
